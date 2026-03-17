@@ -33,8 +33,7 @@ const CONFIG = {
   API_ENDPOINT: '/.netlify/functions/generate',
   API_KEY: '',
   MODEL: 'claude-sonnet-4-20250514',
-  MAX_TOKENS_GEN: 2000,
-  MAX_TOKENS_REVIEW: 1800
+  MAX_TOKENS_GEN: 2200
 };
 </script>
 
@@ -393,15 +392,12 @@ async function generate() {
   go(5);
   runBuild();
   try {
-    const draft = await callGenerate();
-    updatePhase('Review','Running Ogilvy hook audit and anti-pattern sweep...', '68%');
-    await sleep(1200);
-    const final = await callReview(draft);
+    const result = await callGenerate();
     if (buildIv) { clearInterval(buildIv); buildIv = null; }
-    updatePhase('Complete','Expert review passed', '100%');
-    await sleep(600);
-    store = final.posts;
-    renderOutput(final);
+    updatePhase('Complete', 'Expert review passed', '100%');
+    await sleep(500);
+    store = result.posts;
+    renderOutput(result);
     go(6);
   } catch(ex) {
     if (buildIv) { clearInterval(buildIv); buildIv = null; }
@@ -414,13 +410,10 @@ async function generate() {
 async function retryGenerate() {
   go(5); runBuild();
   try {
-    const draft = await callGenerate();
-    updatePhase('Review','Running Ogilvy hook audit and anti-pattern sweep...','68%');
-    await sleep(900);
-    const final = await callReview(draft);
+    const result = await callGenerate();
     if (buildIv) { clearInterval(buildIv); buildIv = null; }
-    store = final.posts;
-    renderOutput(final);
+    store = result.posts;
+    renderOutput(result);
     go(6);
   } catch(ex) {
     if (buildIv) { clearInterval(buildIv); buildIv = null; }
@@ -434,9 +427,9 @@ function sleep(ms) { return new Promise(r => setTimeout(r,ms)); }
 /* ── Building animation ── */
 function runBuild() {
   const phases = [
-    {lbl:'Generation', msg:'Reading your voice...', sub:'Analyzing sentence structure and vocabulary patterns in your answers', pct:'14%'},
-    {lbl:'Generation', msg:'Extracting your positioning...', sub:'Identifying the frameworks, contrarian angles, and reframes in your answers', pct:'38%'},
-    {lbl:'Generation', msg:'Writing your posts...', sub:'Building content that sounds like you — not like LinkedIn advice', pct:'62%'},
+    {lbl:'Analyzing', msg:'Reading your voice...', sub:'Extracting sentence patterns and vocabulary from your answers', pct:'20%'},
+    {lbl:'Writing', msg:'Building your posts...', sub:'Writing in your voice with Ogilvy hook standards applied', pct:'55%'},
+    {lbl:'Reviewing', msg:'Running expert review...', sub:'Checking hooks, anti-patterns, and voice consistency', pct:'82%'},
   ];
   const bm=document.getElementById('bm'), bs=document.getElementById('bs');
   const bf=document.getElementById('bf'), pl=document.getElementById('phase-lbl');
@@ -548,61 +541,73 @@ function safeParseJSON(raw) {
   return JSON.parse(raw.substring(start, end + 1));
 }
 
-/* ── CALL 1: Generate posts ── */
+/* ── Single merged call: generate + expert review in one pass ── */
 async function callGenerate() {
-  const sys = `You are a senior LinkedIn content strategist for fractional executives and GTM advisors.
+  const sys = `You are a senior LinkedIn content strategist for fractional executives and GTM advisors. You also apply David Ogilvy's hook standards as a built-in quality check.
 
-You have four answers from a consultant. Execute in this exact order:
+Execute in this exact order:
 
 STEP 1 — VOICE FINGERPRINT
-Read every word of their answers. Extract five signals:
-1. Sentence length tendency (short = under 10 words dominant / medium = 10-20 / long = 20+)
-2. Vocabulary register (technical B2B terms / plain conversational / mixed)
-3. Framing style (problem-first: diagnoses before prescribing vs outcome-first: leads with result)
-4. Perspective pronoun (first-person "I" / collective "we" / impersonal "most consultants/companies")
-5. Any distinctive phrases, analogies, or metaphors in their actual answers — extract these verbatim
+Read every word of the user's answers. Extract:
+1. Sentence length (short = under 10 words dominant / medium = 10-20 / long = 20+)
+2. Vocabulary register (technical B2B / plain conversational / mixed)
+3. Framing style (problem-first: diagnoses before prescribing / outcome-first: leads with result)
+4. Perspective (first-person "I" / collective "we" / impersonal "most consultants")
+5. Any specific phrases or analogies from their answers — note these for use in posts
 
-Write a single voice fingerprint sentence. Example format: "Short declarative sentences, problem-first diagnostic framing, technical B2B vocabulary, uses impersonal third-person and clinical metaphors."
+Write one sentence summarising the voice fingerprint.
 
 STEP 2 — WRITE THREE LINKEDIN POSTS
-Apply the voice fingerprint as a hard constraint on every word.
 
-POST 1: TEACHING POST (source: their answer about the most useful thing they told a client)
-Structure:
-  Hook — 1-3 lines, under 210 characters, uses Pain Mirror or Direct Address pattern: describes the ICP's exact situation so they read it and think "that's me." Never opens with "I". Never a question.
-  Body — Diagnoses the root problem in prose. 3-4 short paragraphs (1-3 sentences each, blank line between). Use their exact framing and vocabulary. No bullet points in the diagnosis.
-  Solution — If prescribing a fix, use arrow (→) bullets only. Maximum 4 bullets.
-  Payoff — 1-2 sentences landing the so-what. What changes when the reader sees this clearly.
-  CTA — Resource handraiser. Name a specific deliverable. Use format: "Comment [KEYWORD] and I'll send you [specific thing]. Takes [time]. [One sentence naming the dream outcome]."
+Use the voice fingerprint as a hard constraint on every sentence.
 
-POST 2: OPINION/BELIEF SHIFT POST (source: their objection and how they handled it)
-Structure:
-  Hook — 1-2 lines stating the opinion directly. No hedging. Uses Pattern Interrupt: contradicts a common belief in their space. Under 140 characters.
-  Body — Why the common assumption is wrong. 2-3 short paragraphs drawing directly from how they reframed the objection in their answer. Back it with experience, not theory.
-  Payoff — What shifts when the reader adopts this view. Declarative. Hard landing.
-  No CTA — let the post land. End on the declarative payoff line only.
+POST 1: TEACHING POST
+Source: their answer about the most useful thing they told a client.
+Hook: 1-3 lines, under 210 characters. Pain Mirror pattern — describe the ICP's exact situation so they read it and think "that's me." Never opens with "I". Never a question.
+Body: Diagnoses the root cause in prose. 3-4 short paragraphs (1-3 sentences, blank line between). No bullet points in the diagnosis.
+Solution: Arrow (→) bullets only, max 4, only if prescribing a specific fix.
+Payoff: 1-2 sentences. What changes when the reader sees this clearly.
+CTA: "Comment [KEYWORD] and I'll send you [specific deliverable]. Takes [time]. [Dream outcome in one sentence]."
 
-POST 3: STORY/BELIEF POST (source: what ideal clients misunderstand before a call)
-Structure:
-  Hook — Drop into an observation or moment. Open loop: tease a result or insight, withhold the how. Under 180 characters.
-  Body — The situation (what most clients believe), the tension (why it costs them), the resolution (what they understand after the conversation). 3 short paragraphs.
-  Payoff — The transferable lesson stated as a declarative conclusion. Specific. No hedging.
-  CTA — One sharp diagnostic question OR a soft resource handraiser. Not both.
+POST 2: OPINION POST
+Source: their sales objection and how they reframed it.
+Hook: 1-2 lines, under 140 characters. Pattern Interrupt — contradicts a common belief directly. No hedging.
+Body: 2-3 short paragraphs. Why the common assumption is wrong, backed by their actual experience from the answer.
+Payoff: Declarative hard landing. No CTA. End on the payoff line only.
 
-RULES THAT CANNOT BE BROKEN:
+POST 3: STORY POST
+Source: what ideal clients misunderstand before a call.
+Hook: 1-2 lines, under 180 characters. Open Loop — tease an insight, withhold the how.
+Body: Situation (what most believe), tension (why it costs them), resolution (what shifts). 3 short paragraphs.
+Payoff: Transferable lesson as a declarative conclusion.
+CTA: One specific diagnostic question or soft resource handraiser.
+
+STEP 3 — OGILVY QUALITY CHECK (apply before finalising)
+For each post, verify and fix:
+- Hook under 210 characters? Count and cut if over.
+- First line strong enough alone to pull to line 2?
+- Any vague claims? Replace with specific language.
+- Opens with "I"? Restructure.
+- Asks a question in hook? Convert to declarative.
+- Any em dashes? Replace with comma or colon.
+- Any exclamation marks? Remove.
+- Any emojis? Remove.
+- Any of these phrases? Remove: "Here's the thing", "Let me share", "In today's landscape", "game-changer", "powerful", "journey", "It's no secret", "At the end of the day"
+- Teaching and Opinion posts end with a question? Convert to declarative.
+- Voice consistent with fingerprint throughout? Rewrite any generic-sounding paragraphs.
+
+ABSOLUTE RULES:
 - Never open any post with "I"
-- Zero em dashes — use commas, colons, or line breaks instead
+- Zero em dashes anywhere
 - Zero exclamation marks
-- Zero emojis anywhere
+- Zero emojis
 - No hashtags in body copy
-- Short paragraphs: 1-3 sentences then a blank line
-- Declarative closers on posts 1 and 2 — no closing questions
-- 200-270 words per post
-- Write to THEIR ICP — not to the general LinkedIn audience
-- Every post must use vocabulary and phrasing from the user's own answers
-- No AI filler: "In today's landscape", "Let me share", "Here's the thing", "game-changer", "powerful", "journey", "It's no secret"
+- Short paragraphs: 1-3 sentences then blank line
+- 180-260 words per post
+- Write to their ICP, not to general LinkedIn audience
+- Use vocabulary and phrases from their actual answers
 
-Return ONLY valid JSON. No markdown. No backticks. No text outside the JSON object:
+Return ONLY valid JSON. No markdown. No backticks. No text before or after the JSON:
 {"voice_fingerprint":"","posts":[{"type":"Teaching","hook":"","full_post":""},{"type":"Opinion","hook":"","full_post":""},{"type":"Story","hook":"","full_post":""}]}`;
 
   const usr = `LinkedIn discovery calls last 30 days: ${D.q1}
@@ -617,71 +622,6 @@ Answer 3 — What ideal clients should understand before a call:
 ${D.q4}`;
 
   return callAPI(sys, usr, CONFIG.MAX_TOKENS_GEN);
-}
-
-/* ── CALL 2: Expert review pass ── */
-async function callReview(draft) {
-  const sys = `You are David Ogilvy conducting a quality review on three LinkedIn posts for a fractional executive.
-
-Your job: audit each post against strict standards, then return the revised versions.
-
-OGILVY HOOK AUDIT (apply to all three posts):
-For each hook, check:
-1. Is it under 210 characters? Count exactly. If over, cut to the essential tension.
-2. Does the first line do all the work — if someone reads only line 1, is there enough to pull them to line 2?
-3. Is it specific or vague? "Consultants who post without a system" is specific. "Many people struggle with content" is vague. Rewrite vague hooks to be specific.
-4. Does it name the ICP explicitly (role, situation, or pain) or create immediate recognition?
-5. Does it open with "I"? If yes, rewrite.
-6. Does it ask a question? If yes, convert to a declarative statement — questions are the weakest hooks.
-7. Is it genuine or does it sound like LinkedIn bait? Remove any "hot take" or "unpopular opinion" framing — state the thing directly.
-
-ANTI-PATTERN SWEEP (apply to all three posts, remove every instance):
-- Em dashes (—) → replace with comma, colon, or line break
-- Exclamation marks → remove
-- Emojis → remove
-- "Here's the thing" → rewrite the sentence
-- "Let me share" → delete and continue from next word
-- "In today's [landscape/world/market]" → delete entirely
-- "game-changer" / "powerful" / "journey" / "It's no secret" / "At the end of the day" → replace with specific language
-- Opening "I" on any post → restructure first line
-- Closing questions on Teaching and Opinion posts → convert to declarative statement
-
-VOICE CONSISTENCY CHECK:
-The voice fingerprint is provided. For each post, verify: does the body copy reflect the sentence length, vocabulary register, and framing style described? If a post slips into generic LinkedIn tone, rewrite the offending sections to match the fingerprint.
-
-STRUCTURAL CHECK:
-Teaching post: confirm Hook → Body (prose diagnosis) → Solution (→ bullets if present) → Payoff → CTA structure is intact
-Opinion post: confirm Hook → Why (experience-backed) → Payoff → No CTA structure is intact
-Story post: confirm Hook → Situation/Tension/Resolution → Payoff → CTA structure is intact
-
-After completing all checks and revisions, return the final posts.
-
-Return ONLY valid JSON. No markdown. No backticks. No text outside the JSON:
-{"voice_fingerprint":"","posts":[{"type":"Teaching","hook":"","full_post":""},{"type":"Opinion","hook":"","full_post":""},{"type":"Story","hook":"","full_post":""}]}`;
-
-  const usr = `Voice fingerprint: ${draft.voice_fingerprint}
-
-Posts to review:
-
-POST 1 (Teaching):
-Hook: ${draft.posts[0].hook}
-Full post:
-${draft.posts[0].full_post}
-
-POST 2 (Opinion):
-Hook: ${draft.posts[1].hook}
-Full post:
-${draft.posts[1].full_post}
-
-POST 3 (Story):
-Hook: ${draft.posts[2].hook}
-Full post:
-${draft.posts[2].full_post}`;
-
-  const reviewed = await callAPI(sys, usr, CONFIG.MAX_TOKENS_REVIEW);
-  // Preserve original voice fingerprint if review doesn't return one
-  if (!reviewed.voice_fingerprint) reviewed.voice_fingerprint = draft.voice_fingerprint;
-  return reviewed;
 }
 
 /* ── Render output ── */
