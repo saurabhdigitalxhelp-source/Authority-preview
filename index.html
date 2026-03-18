@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Authority Infrastructure: Content Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:  #0A0A12;
+      --bg2: #0F0F1A;
+      --sf:  rgba(255,255,255,0.042);
+      --sf2: rgba(255,255,255,0.078);
+      --bd:  rgba(106,102,163,0.20);
+      --bd2: rgba(106,102,163,0.52);
+      --v:   #6A66A3;
+      --vb:  rgba(106,102,163,0.13);
+      --vb2: rgba(106,102,163,0.22);
+      --am:  #FF9900;
+      --am2: #e08800;
+      --tx:  #FFFFFF;
+      --mu:  rgba(255,255,255,0.72);
+      --dm:  rgba(255,255,255,0.46);
+      --er:  #F08080;
+      --ok:  #019047;
+      --r:   12px;
+      --rs:  8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--tx);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(106,102,163,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.032) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active {
+      display: block;
+      animation: fadeUp 0.44s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-ring {
+      0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0.6; }
+      100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    .shaking { animation: shake 0.42s ease; }
+
+    /* Brand mark */
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--v);
+      flex-shrink: 0;
+    }
+    .brand-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .18em;
+      color: var(--v);
+      opacity: 0.68;
+      text-transform: uppercase;
+    }
+
+    /* Headline */
+    .headline {
+      font-size: clamp(28px, 7.5vw, 44px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.030em;
+      margin-bottom: 20px;
+    }
+    .headline .v { color: var(--v); }
+
+    /* Sub */
+    .sub {
+      color: var(--mu);
+      font-size: 15px;
+      line-height: 1.76;
+      margin-bottom: 24px;
+    }
+
+    /* Pills */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+    .pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.60);
+      border: 1px solid rgba(106,102,163,0.35);
+      padding: 5px 12px;
+      border-radius: 100px;
+      background: rgba(106,102,163,0.08);
+    }
+
+    /* Form */
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mu);
+      margin-bottom: 8px;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      background: var(--sf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rs);
+      padding: 13px 15px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--tx);
+      outline: none;
+      transition: border-color 0.2s;
+      resize: none;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: var(--dm); }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--bd2);
+      box-shadow: 0 0 0 3px rgba(106,102,163,0.12);
+    }
+    .field textarea { line-height: 1.65; }
+
+    .field-helper {
+      font-size: 13px;
+      color: var(--dm);
+      margin-top: 7px;
+    }
+
+    /* Char counter */
+    .char-counter {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--dm);
+      margin-top: 7px;
+      text-align: right;
+      transition: color 0.2s;
+    }
+
+    /* Buttons */
+    .btn-amber {
+      display: block;
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--am);
+      color: #000;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: background 0.18s;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn-amber:hover { background: var(--am2); }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--bd);
+      color: var(--mu);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 22px;
+      border-radius: var(--rs);
+      cursor: pointer;
+      transition: border-color 0.18s, color 0.18s;
+      width: 100%;
+    }
+    .btn-ghost:hover { border-color: var(--v); color: var(--tx); }
+
+    /* Footer note */
+    .foot-note {
+      font-size: 12px;
+      color: var(--dm);
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Back nav */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--dm);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 28px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: color 0.18s;
+    }
+    .back-link:hover { color: var(--mu); }
+    .back-link::before { content: '\2190'; font-size: 13px; }
+    .progress-wrap { margin-bottom: 32px; }
+    .progress-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--mu);
+      margin-bottom: 8px;
+      text-align: right;
+    }
+    .progress-track {
+      height: 3px;
+      background: var(--sf2);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--v), var(--am));
+      border-radius: 100px;
+      transition: width 0.55s cubic-bezier(.16,1,.3,1);
+    }
+
+    /* Question */
+    .q-title {
+      font-size: clamp(20px, 5vw, 27px);
+      font-weight: 800;
+      line-height: 1.22;
+      margin-bottom: 10px;
+    }
+    .q-hint {
+      font-size: 14px;
+      color: var(--mu);
+      line-height: 1.68;
+      margin-bottom: 20px;
+    }
+
+    .optional-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--v);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* Building screen */
+    .build-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 0;
+      text-align: center;
+    }
+    .pulse-container {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 36px;
+    }
+    .pulse-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--v);
+      z-index: 1;
+    }
+    .pulse-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--v);
+      animation: pulse-ring 2.2s ease-out infinite;
+    }
+    .pulse-ring:nth-child(1) { animation-delay: 0s; }
+    .pulse-ring:nth-child(2) { animation-delay: 0.73s; }
+    .pulse-ring:nth-child(3) { animation-delay: 1.46s; }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--vb);
+      border: 1px solid var(--bd);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--v);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .phase-blink {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--v);
+      animation: blink 1.1s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .phase-msg {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--tx);
+      margin-bottom: 8px;
+      max-width: 380px;
+      transition: opacity 0.3s;
+    }
+    .phase-sub {
+      font-size: 13px;
+      color: var(--mu);
+      line-height: 1.6;
+      max-width: 320px;
+      transition: opacity 0.3s;
+    }
+
+    .build-progress-track {
+      width: 100%;
+      max-width: 320px;
+      height: 2px;
+      background: var(--sf2);
+      border-radius: 100px;
+      margin-top: 36px;
+      overflow: hidden;
+    }
+    @keyframes progress-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.55; }
+    }
+
+    .build-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--v), var(--am));
+      border-radius: 100px;
+      transition: width 0.55s cubic-bezier(.16,1,.3,1);
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--v);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    /* Diagnosis card */
+    .diag-card {
+      background: var(--bg2);
+      border: 1px solid var(--bd);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .diag-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .niche-pill {
+      font-size: 10px;
+      color: var(--dm);
+      border: 1px solid var(--bd);
+      border-radius: 100px;
+      padding: 4px 11px;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .diag-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-left: 12px;
+      border-left: 2px solid rgba(106,102,163,0.30);
+    }
+    .diag-item:last-of-type { margin-bottom: 0; }
+    .diag-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--vb);
+      border: 1px solid var(--bd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--v);
+      margin-top: 1px;
+    }
+    .diag-content { flex: 1; min-width: 0; }
+    .diag-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--tx);
+      margin-bottom: 5px;
+    }
+    .diag-body {
+      font-size: 13px;
+      color: rgba(255,255,255,0.70);
+      line-height: 1.68;
+      margin-bottom: 7px;
+    }
+    .diag-impact {
+      font-size: 12px;
+      color: var(--er);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .impact-dot { color: var(--er); line-height: 1; }
+
+    .diag-footer {
+      font-size: 13px;
+      color: rgba(255,255,255,0.52);
+      padding-top: 14px;
+      margin-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Voice fingerprint */
+    .fingerprint-badge {
+      background: var(--vb);
+      border: 1px solid var(--bd);
+      border-radius: var(--rs);
+      padding: 13px 16px;
+      margin-bottom: 24px;
+    }
+    .fingerprint-badge .section-label { display: block; margin-bottom: 7px; }
+    .fingerprint-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+
+    /* Output intro */
+    .output-intro { margin-bottom: 28px; }
+    .output-intro p {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.55;
+      color: var(--tx);
+    }
+
+    /* Post cards */
+    .post-card {
+      background: var(--sf);
+      border: 1px solid var(--bd);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: card-in 0.5s cubic-bezier(.16,1,.3,1) both;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+    }
+    .post-card:hover {
+      border-color: rgba(106,102,163,0.52);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(106,102,163,0.10);
+    }
+    .post-header { margin-bottom: 14px; }
+    .type-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .badge-violet { background: var(--vb2); color: var(--v);  border: 1px solid var(--bd2); }
+    .badge-amber  { background: rgba(255,153,0,.15); color: var(--am); border: 1px solid rgba(255,153,0,.3); }
+    .badge-green  { background: rgba(1,144,71,.12);  color: #3ecf8e; border: 1px solid rgba(1,144,71,.25); }
+
+    .hook-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--dm);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+    .hook-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--tx);
+      line-height: 1.44;
+      margin-bottom: 14px;
+      white-space: pre-line;
+    }
+    .hook-divider {
+      height: 1px;
+      background: var(--bd);
+      margin-bottom: 14px;
+    }
+    .post-body {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.8;
+      white-space: pre-line;
+      margin-bottom: 14px;
+    }
+
+    .purpose-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .purpose-green  { background: rgba(1,144,71,.10);  color: #3ecf8e; }
+    .purpose-amber  { background: rgba(255,153,0,.10); color: #FFB940; }
+    .purpose-violet { background: var(--vb);           color: #9896c8; }
+
+    .post-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      gap: 12px;
+    }
+    .word-count {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--dm);
+      flex-shrink: 0;
+    }
+    .copy-btn {
+      width: auto;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: var(--am);
+      border-color: rgba(255,153,0,0.30);
+    }
+    .copy-btn:hover { border-color: var(--am); color: var(--am); }
+
+    /* Value stack */
+    .value-stack {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 28px;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+    .value-stack .section-label { display: block; margin-bottom: 16px; }
+    .value-item {
+      font-size: 14px;
+      color: rgba(255,255,255,0.80);
+      line-height: 2.1;
+    }
+    .value-item::before { content: '\2192  '; color: var(--am); }
+    .value-sep {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.60);
+      margin: 18px 0;
+      font-style: italic;
+    }
+    .value-full {
+      font-size: 13px;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.78;
+    }
+
+    /* CTA block */
+    .cta-block {
+      background: var(--vb2);
+      border: 1px solid var(--bd2);
+      border-top: 2px solid var(--am);
+      border-radius: var(--r);
+      padding: 28px;
+      margin-top: 28px;
+    }
+    .cta-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--am);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      margin-bottom: 10px;
+    }
+    .cta-heading {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.018em;
+      margin-bottom: 14px;
+      line-height: 1.22;
+    }
+    .cta-body {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.78;
+      margin-bottom: 24px;
+    }
+    .cta-leave {
+      font-size: 12px;
+      color: rgba(255,255,255,0.46);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Error screen */
+    .err-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 60px 0;
+    }
+    .err-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(240,128,128,.1);
+      border: 1px solid rgba(240,128,128,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--er);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .err-heading { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .err-body    { font-size: 14px; color: var(--mu); margin-bottom: 12px; }
+    .err-code    { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--dm); margin-bottom: 24px; max-width: 380px; word-break: break-word; }
+
+    /* Single-click copy toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--ok);
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 100px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s, transform 0.22s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    /* Inline validation error */
+    .field-error {
+      font-size: 12px;
+      color: var(--er);
+      margin-top: 6px;
+      min-height: 16px;
+      font-weight: 500;
+    }
+    /* Privacy note */
+    .privacy-note {
+      font-size: 11px;
+      color: rgba(255,255,255,0.32);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .diag-header { flex-direction: column; }
+      .post-footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- SCREEN 0: Entry -->
+    <div class="screen active" id="s0">
+      <div class="brand-mark">
+        <div class="brand-dot"></div>
+        <span class="brand-text">LinkedIn Authority Infrastructure</span>
+      </div>
+      <h1 class="headline">Your best LinkedIn content<br><span class="v">already exists.</span></h1>
+      <p class="sub">For fractional CMOs, CROs, and GTM advisors.<br>Four questions. Ten minutes. Three posts built from your own thinking, written in your voice.<br>No email. No card. No template.</p>
+      <div class="pills">
+        <span class="pill">10 minutes</span>
+        <span class="pill">No email required</span>
+        <span class="pill">3 publish-ready posts</span>
+        <span class="pill">Built from your thinking</span>
+      </div>
+      <div class="field">
+        <label for="name">Your name</label>
+        <input type="text" id="name" placeholder="First name is fine" autocomplete="off" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="niche">Your niche in one line</label>
+        <input type="text" id="niche" placeholder="e.g. Fractional CMO helping B2B SaaS companies build GTM systems that generate pipeline" autocomplete="off" maxlength="220">
+        <p class="field-helper">Be specific. The more precise your niche, the more accurate your pipeline diagnosis.</p>
+      </div>
+      <button class="btn-amber" onclick="s0next()">Diagnose my pipeline gaps</button>
+      <p class="foot-note">For fractional executives in active practice. Takes 10 minutes. Nothing to install.</p>
+    </div>
+
+    <!-- SCREEN 1: Q1 -->
+    <div class="screen" id="s1">
+      <button class="back-link" onclick="go(0)">Back</button>
+      <div class="progress-wrap">
+        <div class="progress-label">1 of 4</div>
+        <div class="progress-track"><div class="progress-fill" style="width:25%"></div></div>
+      </div>
+      <h2 class="q-title">What's the most useful thing you told a client this month?</h2>
+      <p class="q-hint">The insight that changed how they were thinking, not a general observation. The specific thing that shifted how they saw their problem. 2 to 3 sentences is enough.</p>
+      <div class="field">
+        <textarea id="q1" rows="5" placeholder="The thing that changed how they saw the problem..." oninput="updateCounter('q1','c1',60)"></textarea>
+        <div class="char-counter" id="c1">0 / 60 min</div>
+        <div class="field-error" id="e1"></div>
+      </div>
+      <button class="btn-amber" onclick="s1next()">Continue</button>
+      <p class="privacy-note">Your answers are used only to generate your posts. Nothing is stored.</p>
+    </div>
+
+    <!-- SCREEN 1b: Q2 -->
+    <div class="screen" id="s1b">
+      <button class="back-link" onclick="go(1)">Back</button>
+      <div class="progress-wrap">
+        <div class="progress-label">2 of 4</div>
+        <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+      </div>
+      <h2 class="q-title">What objection came up in a recent sales conversation, and what moved them forward?</h2>
+      <p class="q-hint">What they pushed back on. What you said back. The reframe you used on that prospect is almost always your strongest opinion post.</p>
+      <div class="field">
+        <textarea id="q2" rows="5" placeholder="They said... and I responded by showing them..." oninput="updateCounter('q2','c2',60)"></textarea>
+        <div class="char-counter" id="c2">0 / 60 min</div>
+        <div class="field-error" id="e2"></div>
+      </div>
+      <button class="btn-amber" onclick="s1bnext()">Continue</button>
+    </div>
+
+    <!-- SCREEN 1c: Q3 -->
+    <div class="screen" id="s1c">
+      <button class="back-link" onclick="go('1b')">Back</button>
+      <div class="progress-wrap">
+        <div class="progress-label">3 of 4</div>
+        <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+      </div>
+      <h2 class="q-title">What do you wish your ideal clients understood before they get on a call with you?</h2>
+      <p class="q-hint">The assumption they arrive with that makes the first conversation harder. The thing that would make every discovery call easier if they already knew it.</p>
+      <div class="field">
+        <textarea id="q3" rows="5" placeholder="Most people I speak with assume... but what's actually happening is..." oninput="updateCounter('q3','c3',60)"></textarea>
+        <div class="char-counter" id="c3">0 / 60 min</div>
+        <div class="field-error" id="e3"></div>
+      </div>
+      <button class="btn-amber" onclick="s1cnext()">Continue</button>
+    </div>
+
+    <!-- SCREEN 1d: Q4 Voice Anchor -->
+    <div class="screen" id="s1d">
+      <button class="back-link" onclick="go('1c')">Back</button>
+      <div class="progress-wrap">
+        <div class="progress-label">4 of 4</div>
+        <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+      </div>
+      <h2 class="q-title">Paste the best sentence you've ever written or said about your work.</h2>
+      <p class="q-hint">From a post, a proposal, an email. Anything. Even one sentence. This is how the system learns to write like you, not like a LinkedIn template.</p>
+      <span class="optional-label">OPTIONAL: THIS DRAMATICALLY IMPROVES YOUR OUTPUT</span>
+      <div class="field">
+        <textarea id="q4" rows="4" placeholder="e.g. Most consultants don't have a content problem. They have an infrastructure problem..."></textarea>
+        <p class="field-helper">If you skip this, the system still works. It will infer your voice from your previous answers.</p>
+      </div>
+      <button class="btn-amber" onclick="s1dnext()">Build my posts</button>
+    </div>
+
+    <!-- SCREEN 2: Building -->
+    <div class="screen" id="s2">
+      <div class="build-center">
+        <div class="pulse-container">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring"></div>
+          <div class="pulse-dot"></div>
+        </div>
+        <div class="phase-badge">
+          <div class="phase-blink"></div>
+          <span id="phase-label">Diagnosing</span>
+        </div>
+        <p class="phase-msg" id="phase-msg">Diagnosing your LinkedIn pipeline gaps...</p>
+        <p class="phase-sub" id="phase-sub">Analyzing your niche to identify what is costing you conversations</p>
+        <div class="build-progress-track">
+          <div class="build-progress-fill" id="build-progress" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Output -->
+    <div class="screen" id="s3">
+      <div id="s3-content"></div>
+    </div>
+
+    <!-- SCREEN 4: Error -->
+    <div class="screen" id="s4">
+      <div class="err-center">
+        <div class="err-icon">!</div>
+        <h2 class="err-heading">Something went wrong.</h2>
+        <p class="err-body">Your answers are saved. Tap below to try again.</p>
+        <p class="err-code" id="err-msg"></p>
+        <button class="btn-amber" style="max-width:280px;margin:0 auto" onclick="generate()">Try again</button>
+      </div>
+    </div>
+
+  </div><!-- /.wrap -->
+
+  <!-- Single-click copy: toast notification + hidden scratch textarea for fallback -->
+  <div class="copy-toast" id="copy-toast">Post copied to clipboard</div>
+  <textarea id="copy-scratch" readonly style="position:fixed;top:-9999px;left:-9999px;opacity:0;" aria-hidden="true"></textarea>
+
+  <script>
+    // ─── State ────────────────────────────────────────────────────────────────
+    var D = { name: '', niche: '', q1: '', q2: '', q3: '', q4: '' };
+    var postTexts = [];
+    var phaseInterval = null;
+
+    // Phases run once in sequence — never loop back.
+    // Each phase auto-advances. After the last, holds on a finalising state.
+    var PHASES = [
+      {
+        label: 'Diagnosing',
+        msg:   'Mapping your pipeline gaps',
+        sub:   'Identifying the three specific gaps costing you inbound conversations'
+      },
+      {
+        label: 'Extracting',
+        msg:   'Extracting your voice fingerprint',
+        sub:   'Capturing your sentence patterns, vocabulary, and diagnostic framing'
+      },
+      {
+        label: 'Writing',
+        msg:   'Writing your three posts',
+        sub:   'Teaching, opinion, and story — each built for a different job in your pipeline'
+      },
+      {
+        label: 'Finalising',
+        msg:   'Running quality checks',
+        sub:   'Auditing each post before handing them to you'
+      }
+    ];
+    var phaseIdx = 0;
+
+    function resetTool() {
+      D = { name: '', niche: '', q1: '', q2: '', q3: '', q4: '' };
+      postTexts = [];
+      ['name','niche','q1','q2','q3','q4'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      ['c1','c2','c3'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = '0 / 60 min'; el.style.color = 'var(--dm)'; }
+      });
+      go(0);
+    }
+
+    // ─── Screen navigation ────────────────────────────────────────────────────
+    function go(n) {
+      var all = document.querySelectorAll('.screen');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+      var el = document.getElementById('s' + n);
+      if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
+    }
+
+    // ─── Shake on validation fail ─────────────────────────────────────────────
+    function shake(el) {
+      el.classList.remove('shaking');
+      void el.offsetWidth;
+      el.classList.add('shaking');
+      el.addEventListener('animationend', function handler() {
+        el.classList.remove('shaking');
+        el.removeEventListener('animationend', handler);
+      });
+    }
+
+    // ─── Character counter ────────────────────────────────────────────────────
+    function updateCounter(taId, ctId, min) {
+      var len = document.getElementById(taId).value.length;
+      var ct  = document.getElementById(ctId);
+      ct.textContent  = len >= min ? 'Good to go' : len + ' / ' + min + ' min';
+      ct.style.color  = len >= min ? 'var(--ok)' : 'var(--dm)';
+    }
+
+    // ─── Screen transitions ───────────────────────────────────────────────────
+    function s0next() {
+      var name  = document.getElementById('name').value.trim();
+      var niche = document.getElementById('niche').value.trim();
+      if (name.length < 2)   { shake(document.getElementById('name'));  return; }
+      if (niche.length < 15) { shake(document.getElementById('niche')); return; }
+      D.name  = name;
+      D.niche = niche;
+      go(1);
+    }
+
+    function clearErr(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = '';
+    }
+    function showErr(fieldId, errId, msg) {
+      shake(document.getElementById(fieldId));
+      var el = document.getElementById(errId);
+      if (el) el.textContent = msg;
+      document.getElementById(fieldId).focus();
+    }
+
+    function s1next() {
+      var val = document.getElementById('q1').value.trim();
+      if (val.length < 60) {
+        showErr('q1', 'e1', 'A little more detail here — the more specific the insight, the stronger the post.');
+        return;
+      }
+      clearErr('e1');
+      D.q1 = val;
+      go('1b');
+    }
+
+    function s1bnext() {
+      var val = document.getElementById('q2').value.trim();
+      if (val.length < 60) {
+        showErr('q2', 'e2', 'Include the objection and what you said back — that contrast is what makes the opinion post work.');
+        return;
+      }
+      clearErr('e2');
+      D.q2 = val;
+      go('1c');
+    }
+
+    function s1cnext() {
+      var val = document.getElementById('q3').value.trim();
+      if (val.length < 60) {
+        showErr('q3', 'e3', 'Name the specific assumption most clients arrive with — vague answers produce generic posts.');
+        return;
+      }
+      clearErr('e3');
+      D.q3 = val;
+      go('1d');
+    }
+
+    function s1dnext() {
+      D.q4 = document.getElementById('q4').value.trim();
+      generate();
+    }
+
+    // ─── Building screen phases — linear, no looping ─────────────────────────
+    // Phases advance forward only. Once all 4 are shown, progress bar pulses
+    // gently to signal "working" without implying a restart.
+    function startBuildingPhases() {
+      phaseIdx = 0;
+      applyPhase(phaseIdx);
+      if (phaseInterval) clearInterval(phaseInterval);
+      phaseInterval = setInterval(function() {
+        if (phaseIdx < PHASES.length - 1) {
+          phaseIdx++;
+          applyPhase(phaseIdx);
+        }
+        // Final phase reached — stop advancing, let progress bar hold at 95%
+        // A gentle CSS pulse on the fill communicates "still working" without looping
+      }, 3200);
+    }
+
+    function stopBuildingPhases() {
+      if (phaseInterval) { clearInterval(phaseInterval); phaseInterval = null; }
+    }
+
+    function applyPhase(i) {
+      var p = PHASES[i];
+      var isFinal = (i === PHASES.length - 1);
+      // Progress: 25% per phase, hold at 95% on final to avoid implying completion
+      var pct = isFinal ? 95 : Math.round((i + 1) / (PHASES.length) * 90);
+      document.getElementById('phase-label').textContent = p.label;
+      document.getElementById('phase-msg').textContent   = p.msg;
+      document.getElementById('phase-sub').textContent   = p.sub;
+      var fill = document.getElementById('build-progress');
+      fill.style.width = pct + '%';
+      if (isFinal) {
+        fill.style.animation = 'progress-pulse 2s ease-in-out infinite';
+      } else {
+        fill.style.animation = '';
+      }
+    }
+
+    function setRetryMsg(attempt) {
+      document.getElementById('phase-msg').textContent = 'Taking a moment, retrying now';
+      document.getElementById('phase-sub').textContent = 'Attempt ' + attempt + ' of 3 — your answers are safe';
+    }
+
+    // ─── HTML escape ──────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;');
+    }
+
+    // ─── Pipeline diagnosis (rule-based, no API call) ─────────────────────────
+    function buildDiagnosis(niche) {
+      var n = (niche || '').toLowerCase();
+
+      var reader = 'fractional executives';
+      if (n.indexOf('saas') !== -1 || n.indexOf('software') !== -1)      reader = 'SaaS founders and revenue leaders';
+      else if (n.indexOf('cro') !== -1 || n.indexOf('revenue') !== -1)   reader = 'revenue leaders';
+      else if (n.indexOf('cmo') !== -1 || n.indexOf('marketing') !== -1) reader = 'marketing leaders';
+      else if (n.indexOf('gtm') !== -1 || n.indexOf('go-to-market') !== -1) reader = 'GTM and growth leaders';
+      else if (n.indexOf('ops') !== -1 || n.indexOf('operations') !== -1) reader = 'operations leaders';
+      else if (n.indexOf('consulting') !== -1 || n.indexOf('consultant') !== -1) reader = 'B2B consultants and advisors';
+
+      return [
+        {
+          num:    '1',
+          title:  'Profile converting visitors to contacts',
+          body:   'Most ' + reader + ' lead their profile with their job title or employment history, not the specific problem they solve for clients. A potential client lands on the profile, reads the headline, and moves on because they could not tell in three seconds what the engagement would actually fix for them.',
+          impact: 'High-intent visitors leave without contacting you.'
+        },
+        {
+          num:    '2',
+          title:  'Content generating inbound conversations',
+          body:   'Posting without a handraiser mechanic generates engagement but no inbound pipeline conversations. Every post needs a specific next step for interested prospects: a keyword, a named deliverable, a clear reason to reply. Without that mechanic, likes accumulate. Discovery calls do not.',
+          impact: 'Engagement stays on the post. Pipeline does not start.'
+        },
+        {
+          num:    '3',
+          title:  'Expertise reaching the right buyers',
+          body:   'The frameworks used in client engagements, the objections handled in sales calls, the insights that move deals forward: all of it stays locked inside those conversations. It never reaches the portion of the network who will never get on a call unless LinkedIn shows them the thinking first.',
+          impact: 'Referral pipeline thins. No system replaces it.'
+        }
+      ];
+    }
+
+    // ─── safeParseJSON — defined exactly once ─────────────────────────────────
+    function safeParseJSON(raw) {
+      if (!raw || !raw.trim()) throw new Error('Empty response. Please try again.');
+      // Strip markdown code fences if model returns them despite instructions
+      var cleaned = raw.trim();
+      if (cleaned.indexOf('```') !== -1) {
+        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
+      }
+      var first = cleaned.indexOf('{');
+      var last  = cleaned.lastIndexOf('}');
+      var raw   = cleaned;
+      if (first === -1 || last <= first) throw new Error('No JSON found. Please try again.');
+      var str = raw.substring(first, last + 1);
+
+      // Attempt 1: direct parse
+      try {
+        var r1 = JSON.parse(str);
+        if (r1 && r1.posts !== undefined) return r1;
+      } catch(e1) { console.log('Parse attempt 1:', e1.message); }
+
+      // Attempt 2: fix literal newlines inside strings
+      try {
+        var out = '', inStr = false, esc2 = false;
+        for (var i = 0; i < str.length; i++) {
+          var ch = str[i];
+          if (esc2)             { out += ch; esc2 = false; continue; }
+          if (ch === '\\')      { out += ch; esc2 = true;  continue; }
+          if (ch === '"')       { inStr = !inStr; out += ch; continue; }
+          if (inStr && ch === '\n') { out += '\\n'; continue; }
+          if (inStr && ch === '\r') { continue; }
+          if (inStr && ch === '\t') { out += '\\t'; continue; }
+          out += ch;
+        }
+        var r2 = JSON.parse(out);
+        if (r2 && r2.posts !== undefined) return r2;
+      } catch(e2) { console.log('Parse attempt 2:', e2.message); }
+
+      // Attempt 3: regex extraction
+      try {
+        var vf = (str.match(/"voice_fingerprint"\s*:\s*"([^"]*)"/) || [])[1] || '';
+        var posts = [];
+        ['Teaching', 'Opinion', 'Story'].forEach(function(type) {
+          var a = Math.max(
+            str.indexOf('"type":"' + type + '"'),
+            str.indexOf('"type": "' + type + '"')
+          );
+          if (a < 0) return;
+          var b = str.indexOf('"type"', a + 10);
+          var block = b > 0 ? str.substring(a, b) : str.substring(a);
+          var h = (block.match(/"hook"\s*:\s*"([^"]*)"/) || [])[1];
+          var p = (block.match(/"full_post"\s*:\s*"([^"]*)"/) || [])[1];
+          if (h && p) posts.push({ type: type, hook: h, full_post: p.replace(/\\n/g, '\n') });
+        });
+        if (posts.length) return { voice_fingerprint: vf, posts: posts };
+      } catch(e3) { console.log('Parse attempt 3:', e3.message); }
+
+      throw new Error('Could not parse response. Please try again.');
+    }
+
+    // ─── System prompt ────────────────────────────────────────────────────────
+    function buildSystemPrompt() {
+      var nl = '\n';
+      var sp = [
+        'CRITICAL OUTPUT RULE: Return a single raw JSON object only. Start with { and end with }. No markdown. No backticks. No code fences. No text before or after.',
+        '',
+        'You write LinkedIn posts for a fractional executive. These posts must generate inbound discovery calls from their ideal clients. Not likes. Not impressions. Pipeline conversations that become clients.',
+        '',
+        '===========================================',
+        'CONTEXT',
+        '===========================================',
+        '',
+        'Niche: "' + D.niche + '"',
+        'Voice anchor (best sentence they have written, may be empty): "' + D.q4 + '"',
+        '',
+        'From the niche, extract before writing anything:',
+        'WRITER: The fractional executive publishing these posts',
+        'DOMAIN: Their specific area of expertise (revenue operations / GTM strategy / demand generation / sales process / positioning / pricing / etc.)',
+        'READER: Their ideal clients — the buyers who read these posts and may hire them',
+        'OUTCOME: The transformation they deliver',
+        '',
+        'CRITICAL: Do NOT write about LinkedIn strategy, content creation, or personal branding unless the niche explicitly covers these. Write about the DOMAIN. Every post speaks FROM the WRITER\'s expertise TO the READER\'s business problems.',
+        '',
+        '===========================================',
+        'STEP 1 — VOICE FINGERPRINT',
+        '===========================================',
+        '',
+        'Read ALL four answers including the voice anchor. Extract:',
+        '1. Sentence length (short: under 10 words dominant / medium: 10-20 / long: 20+)',
+        '2. Vocabulary (technical domain-specific / conversational / mixed)',
+        '3. Framing (problem-first: diagnoses root cause before prescribing / outcome-first: leads with result)',
+        '4. Perspective (first-person "I" / impersonal "most companies / most founders / most revenue teams")',
+        '5. VERBATIM phrases from their answers — these go directly into the posts word-for-word',
+        '',
+        'If a voice anchor sentence was provided, it is the highest-priority signal. Match its rhythm, vocabulary, and framing exactly.',
+        '',
+        'Write ONE voice fingerprint sentence before writing any post.',
+        '',
+        '===========================================',
+        'STEP 2 — POST ARCHITECTURE',
+        '===========================================',
+        '',
+        'Every effective LinkedIn post has exactly four parts. Apply this to all three posts:',
+        '',
+        'PART 1 — HOOK (lines 1-3, under 210 characters)',
+        'Stops the scroll. Creates enough tension or recognition to earn the "see more" click.',
+        'Line 1 does all the work. If someone reads only line 1, there must be enough to pull them to line 2.',
+        '',
+        'PART 2 — BODY',
+        'Delivers the value. Teaches, tells, proves, or reframes something. This is where trust is built.',
+        'Diagnose in prose — short paragraphs (1-3 sentences), blank line between each.',
+        'Problems diagnosed in prose ONLY. Never bullet points for diagnosis.',
+        '',
+        'PART 3 — PAYOFF',
+        'Lands the insight. 1-2 declarative sentences. Hard landing. No hedging.',
+        '',
+        'PART 4 — CTA',
+        'Teaching posts: Resource Handraiser — "Comment [KEYWORD] and I\'ll send you [specific deliverable]. Takes [X minutes]. [Dream outcome]."',
+        'Opinion posts: NO CTA — end on the payoff. Let it land.',
+        'Story posts: ONE specific diagnostic question OR soft resource handraiser. Not both.',
+        '',
+        '===========================================',
+        'STEP 3 — HOOK PATTERNS',
+        '===========================================',
+        '',
+        'Pick the strongest pattern for each post:',
+        '',
+        'PATTERN 1 — PAIN MIRROR: Open with a situation the READER is currently living. They read it and think "that\'s me." Best for: Teaching posts.',
+        'PATTERN 2 — PATTERN INTERRUPT: A statement that contradicts a common belief in the DOMAIN. Best for: Opinion posts.',
+        'PATTERN 3 — SPECIFIC NUMBER: Lead with a concrete metric. [Number] + [specific context] + [implication]. Best for: Proof posts.',
+        'PATTERN 4 — OPEN LOOP: Tease a result. Withhold the how. Best for: Story posts.',
+        'PATTERN 5 — DIRECT ADDRESS: Call out the READER by role, stage, or situation. Best for: Teaching and handraiser posts.',
+        'PATTERN 6 — STOP DOING THIS: Identify a costly mistake. [Common behaviour] + [what it is costing them]. Best for: Teaching posts.',
+        'PATTERN 7 — STORY ENTRY: Drop into a specific moment. No preamble. Best for: Story posts.',
+        '',
+        'Hook checklist:',
+        '- Specific. Names a role, a number, a situation. Never "many people" or "businesses."',
+        '- Under 210 characters.',
+        '- No emojis.',
+        '- Never opens with "I".',
+        '- Never a question. Declaratives outperform questions every time.',
+        '',
+        '===========================================',
+        'STEP 4 — THREE POSTS',
+        '===========================================',
+        '',
+        'STRUCTURAL PATTERNS — apply to every post:',
+        '',
+        'A — FALSE LABEL TO REAL LABEL: "Most [READER] don\'t have a [surface problem]. They have a [root cause problem]." Use in at least one post.',
+        'B — THREE-PART DISMISSAL: "Not [wrong 1]. Not [wrong 2]. Not [wrong 3]. It is a [real answer]."',
+        'C — DISAPPEARING INSIGHT: "The [specific thing] that just [specific result] disappears the moment [specific trigger]."',
+        'D — PARALLEL CONTRAST LIST: Two lists showing wrong diagnosis vs right diagnosis.',
+        'E — SHORT DECLARATIVE CLOSER: 1-2 hard sentences. No questions. No hedging.',
+        '',
+        'RHYTHM RULES:',
+        '- Mix short fragments (1 line) with medium sentences (2-3 lines)',
+        '- Never three long sentences in a row',
+        '- Paragraph break after every 1-3 sentences — always',
+        '',
+        'POST 1: TEACHING POST',
+        'Source: Answer 1 (most useful thing told to a client)',
+        'Hook: PAIN MIRROR or DIRECT ADDRESS. Under 210 chars.',
+        'Body: False Label to Real Label opener. 3-4 short paragraphs. Use verbatim phrases from Answer 1. Prose only.',
+        'Payoff: 1-2 declarative sentences.',
+        'CTA: "Comment [DOMAIN-SPECIFIC KEYWORD] and I\'ll send you [specific named deliverable]. Takes [X minutes]. [Dream outcome]."',
+        '"Comment" beats "DM me" — comments boost reach. Keyword must name what they receive.',
+        '',
+        'POST 2: OPINION POST',
+        'Source: Answer 2 (sales objection and reframe)',
+        'The objection the prospect raised = the false belief most READERS hold.',
+        'The user\'s reframe = the argument of this post.',
+        'Hook: PATTERN INTERRUPT. Under 140 characters. State the contrarian position directly.',
+        'Body: Three-Part Dismissal. 2-3 short paragraphs. Ground every claim in Answer 2. Use their specific words.',
+        'Payoff: Hard declarative landing.',
+        'NO CTA. End on the payoff.',
+        '',
+        'POST 3: STORY POST',
+        'Source: Answer 3 (what clients misunderstand before a call)',
+        'Hook: OPEN LOOP or STORY ENTRY. Under 180 characters.',
+        'Body para 1: The assumption most READERS arrive with.',
+        'Body para 2: Why that assumption costs them. Use Disappearing Insight pattern.',
+        'Body para 3: What shifts when they understand the truth. Use Answer 3 directly.',
+        'Payoff: Transferable declarative lesson. Domain-specific.',
+        'CTA: ONE sharp diagnostic question that makes the READER self-identify, OR soft resource handraiser.',
+        '',
+        '===========================================',
+        'STEP 5 — QUALITY AUDIT (run silently, fix before outputting)',
+        '===========================================',
+        '',
+        'DOMAIN CHECK:',
+        '1. Post is about DOMAIN, not LinkedIn strategy or personal branding (unless niche covers those)? If not — REWRITE.',
+        '2. Speaks to the specific READER by role and situation? Generic = rewrite.',
+        '3. Uses at least one verbatim phrase from the answers?',
+        '4. Could any consultant in this space have written this? If yes — REWRITE.',
+        '',
+        'HOOK AUDIT:',
+        '5. Hook under 210 chars? 6. First line earns line 2? 7. Never opens with "I"? 8. Not a question?',
+        '',
+        'COPY AUDIT:',
+        '9. No em dashes. 10. No exclamation marks. 11. No emojis.',
+        '12. No banned phrases: "Here\'s the thing" / "Let me share" / "In today\'s landscape" / "game-changer" / "powerful" / "journey" / "It\'s no secret" / "At the end of the day" / "Excited to" / "Hot take:" / "Unpopular opinion:"',
+        '13. Teaching and Opinion posts end with declarative, not a question.',
+        '',
+        'STRUCTURE AUDIT:',
+        '14. False Label to Real Label in at least one post? 15. Verbatim phrase in each post?',
+        '16. Short paragraphs throughout? 17. Problems in prose, not bullets? 18. Solutions with arrows only?',
+        '',
+        '===========================================',
+        'STEP 6 — OGILVY VALIDATION',
+        '===========================================',
+        '',
+        'CHECK 1: COMPETITOR SWAP TEST. Could any other fractional executive in this domain have written this post? If yes — rewrite using specific experience, vocabulary, and reframe from their answers.',
+        '',
+        'CHECK 2: SPECIFICITY AUDIT. Replace vague adjectives with specific facts, roles, timeframes, or situations the answers support.',
+        '',
+        'CHECK 3: FIRST PARAGRAPH DELIVERY. Does the first body paragraph immediately advance the hook\'s tension? If it is preamble — cut it.',
+        '',
+        '===========================================',
+        'JSON OUTPUT RULES',
+        '===========================================',
+        '- Return ONLY the raw JSON object. No text before or after.',
+        '- Use \\n for paragraph breaks in full_post — never literal newlines.',
+        '- \\n\\n between paragraphs.',
+        '- No unescaped double quotes inside strings.',
+        '- 200-270 words per full_post.',
+        '',
+        '{"voice_fingerprint":"","posts":[{"type":"Teaching","hook":"","full_post":""},{"type":"Opinion","hook":"","full_post":""},{"type":"Story","hook":"","full_post":""}]}'
+      ];
+      return sp.join(nl);
+    }
+
+    // ─── API call with retry ──────────────────────────────────────────────────
+    async function callWithRetry(payload) {
+      var delays     = [2000, 5000, 10000];
+      var retryCodes = [429, 500, 502, 529];
+      var lastErr    = null;
+
+      for (var attempt = 0; attempt < 3; attempt++) {
+        try {
+          var isArtifact = window.location.hostname.indexOf('claude.ai') !== -1 ||
+                           window.location.hostname === 'localhost' ||
+                           window.location.hostname === '';
+          var endpoint = isArtifact
+            ? 'https://api.anthropic.com/v1/messages'
+            : '/.netlify/functions/api';
+
+          var resp = await fetch(endpoint, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload)
+          });
+
+          if (retryCodes.indexOf(resp.status) !== -1 && attempt < 2) {
+            lastErr = new Error('HTTP ' + resp.status);
+            setRetryMsg(attempt + 2);
+            await new Promise(function(r) { setTimeout(r, delays[attempt]); });
+            continue;
+          }
+
+          var data = await resp.json();
+          if (data.error) {
+            var msg = (data.error && data.error.message) ? data.error.message : JSON.stringify(data.error);
+            throw new Error(msg);
+          }
+          return data;
+
+        } catch(err) {
+          lastErr = err;
+          if (attempt < 2) {
+            setRetryMsg(attempt + 2);
+            await new Promise(function(r) { setTimeout(r, delays[attempt]); });
+          }
+        }
+      }
+
+      throw lastErr || new Error('Request failed after 3 attempts.');
+    }
+
+    // ─── Main generate ────────────────────────────────────────────────────────
+    async function generate() {
+      go(2);
+      startBuildingPhases();
+
+      var userContent = 'Answer 1 (most useful thing told to a client this month):\n' + D.q1
+        + '\n\nAnswer 2 (sales objection and reframe):\n' + D.q2
+        + '\n\nAnswer 3 (what clients misunderstand before a call):\n' + D.q3
+        + (D.q4 ? '\n\nAnswer 4 (voice anchor):\n' + D.q4 : '');
+
+      var payload = {
+        model:      'claude-sonnet-4-20250514',
+        max_tokens: 3500,
+        system:     buildSystemPrompt(),
+        messages:   [{ role: 'user', content: userContent }]
+      };
+
+      try {
+        var data = await callWithRetry(payload);
+        stopBuildingPhases();
+
+        var raw     = '';
+        var content = data.content || [];
+        for (var i = 0; i < content.length; i++) {
+          if (content[i].type === 'text') { raw = content[i].text; break; }
+        }
+
+        var parsed = safeParseJSON(raw);
+        renderOutput(parsed);
+        go(3);
+
+      } catch(ex) {
+        stopBuildingPhases();
+        document.getElementById('err-msg').textContent = ex.message || 'Unknown error.';
+        go(4);
+      }
+    }
+
+    // ─── Render output ────────────────────────────────────────────────────────
+    function renderOutput(parsed) {
+      postTexts = [];
+
+      var TYPE_CFG = {
+        'Teaching': {
+          badge:       'badge-violet',
+          purpose:     'purpose-green',
+          purposeText: 'Generates inbound DMs from prospects researching their problem'
+        },
+        'Opinion': {
+          badge:       'badge-amber',
+          purpose:     'purpose-amber',
+          purposeText: 'Filters wrong-fit clients. Attracts high-conviction buyers.'
+        },
+        'Story': {
+          badge:       'badge-green',
+          purpose:     'purpose-violet',
+          purposeText: 'Makes your ideal client self-identify in the comments'
+        }
+      };
+
+      var html = '';
+
+      // Block 1: Diagnosis
+      var diagItems  = buildDiagnosis(D.niche);
+      var nicheShort = D.niche.length > 58 ? D.niche.substring(0, 58) + '...' : D.niche;
+
+      html += '<div class="diag-card">';
+      html += '<div class="diag-header">';
+      html += '<span class="section-label">YOUR LINKEDIN PIPELINE DIAGNOSIS</span>';
+      html += '<span class="niche-pill">' + esc(nicheShort) + '</span>';
+      html += '</div>';
+
+      for (var d = 0; d < diagItems.length; d++) {
+        var item = diagItems[d];
+        html += '<div class="diag-item">';
+        html += '<div class="diag-num">' + esc(item.num) + '</div>';
+        html += '<div class="diag-content">';
+        html += '<div class="diag-title">' + esc(item.title) + '</div>';
+        html += '<div class="diag-body">'  + esc(item.body)  + '</div>';
+        html += '<div class="diag-impact"><span class="impact-dot">&#183;</span> ' + esc(item.impact) + '</div>';
+        html += '</div></div>';
+      }
+
+      html += '<div class="diag-footer">The three posts below are built to address gaps 2 and 3 directly.</div>';
+      html += '</div>';
+
+      // Block 2: Voice fingerprint (if returned)
+      if (parsed.voice_fingerprint) {
+        html += '<div class="fingerprint-badge">';
+        html += '<span class="section-label">VOICE FINGERPRINT DETECTED</span>';
+        html += '<div class="fingerprint-text" id="vf-text"></div>';
+        html += '</div>';
+      }
+
+      var firstName = D.name ? D.name.split(' ')[0] : '';
+      html += '<div class="output-intro">';
+      html += '<p>' + (firstName ? firstName + ', here are your three posts.' : 'Here are your three posts.') + '</p>';
+      html += '<p>Each built for a different job in your pipeline.</p>';
+      html += '<p>Publish all three this week.</p>';
+      html += '</div>';
+
+      // Block 4: Post cards
+      var posts = parsed.posts || [];
+      for (var j = 0; j < posts.length; j++) {
+        var post = posts[j];
+        var cfg  = TYPE_CFG[post.type] || TYPE_CFG['Teaching'];
+
+        var hookText = post.hook || '';
+        var bodyText = post.full_post || '';
+        var fullText = hookText + '\n\n' + bodyText;
+        postTexts.push(fullText);
+
+        var rawWords = (hookText + ' ' + bodyText).trim().split(/\s+/);
+        var wordCount = 0;
+        for (var w = 0; w < rawWords.length; w++) {
+          if (rawWords[w].length > 0) wordCount++;
+        }
+
+        html += '<div class="post-card card-in" style="animation-delay:' + (j * 0.45) + 's">';
+        html += '<div class="post-header"><span class="type-badge ' + cfg.badge + '">' + esc(post.type.toUpperCase()) + '</span></div>';
+        html += '<div class="hook-label">HOOK — VISIBLE BEFORE "SEE MORE"</div>';
+        html += '<div class="hook-text" id="pt-hook-' + j + '"></div>';
+        html += '<div class="hook-divider"></div>';
+        html += '<div class="post-body" id="pt-body-' + j + '"></div>';
+        html += '<div class="purpose-badge ' + cfg.purpose + '">' + esc(cfg.purposeText) + '</div>';
+        html += '<div class="post-footer">';
+        html += '<span class="word-count">' + wordCount + ' words</span>';
+        html += '<button class="btn-ghost copy-btn" id="copy-btn-' + j + '" onclick="copyPostDirect(' + j + ', this)">Copy post</button>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // Block 5: Value stack
+      html += '<div class="value-stack">';
+      html += '<span class="section-label">WHAT YOU JUST RECEIVED, AT NO COST</span>';
+      var vsItems = [
+        'A 3-point pipeline diagnosis calibrated to your specific niche',
+        'A voice fingerprint: your sentence patterns, vocabulary, and framing, encoded',
+        'A teaching post that generates inbound DMs from prospects researching your problem',
+        'An opinion post that filters wrong-fit clients and attracts high-conviction buyers',
+        'A story post that makes your ideal client self-identify in the comments',
+        'A purpose mechanic for each post: what to do when engagement starts'
+      ];
+      for (var v = 0; v < vsItems.length; v++) {
+        html += '<div class="value-item">' + esc(vsItems[v]) + '</div>';
+      }
+      html += '<div class="value-sep">12 seconds. From four answers to three ready posts.</div>';
+      html += '<div class="value-full">The full LinkedIn Authority Infrastructure adds: carousels, DM scripts, comment reply templates for every engagement type, a pipeline activation guide per post, a posting calendar, and a complete profile readiness score, built once from a single 90-minute extraction session. You own it permanently. No retainer. No ongoing dependency on anyone.</div>';
+      html += '</div>';
+
+      // Block 6: CTA
+      html += '<div class="cta-block">';
+      html += '<div class="cta-eyebrow">READY TO FIX THIS PERMANENTLY</div>';
+      html += '<h2 class="cta-heading">See exactly what your LinkedIn pipeline is missing. In 30 minutes.</h2>';
+      html += '<p class="cta-body">One conversation. I review your profile, your content, your ICP, and your positioning. You leave with a clear diagnosis and an honest answer: whether this system makes sense for your situation. No pitch deck. If it is not a fit, I will tell you that directly.</p>';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--ok);flex-shrink:0;"></div><span style="font-size:12px;color:rgba(255,255,255,0.55);font-family:Space Mono,monospace;">Currently taking 2 new clients this month</span></div>';
+      html += '<a class="btn-amber" href="https://calendly.com/saurabh_zentro/30-min" target="_blank" rel="noopener noreferrer">Book My Pipeline Diagnosis</a>';
+      html += '<p class="cta-leave">Not ready yet? Save these posts. Publish all three this week. Come back when you want the full system.</p>';
+      html += '</div>';
+
+      html += '<div style="text-align:center;padding-top:20px;padding-bottom:8px;">';
+      html += '<button onclick="resetTool()" style="background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;transition:color 0.18s;" onmouseover="this.style.color=\'rgba(255,255,255,0.60)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.35)\'">Start over with different answers</button>';
+      html += '</div>';
+
+      document.getElementById('s3-content').innerHTML = html;
+
+      // Populate text via textContent (preserves newlines with white-space:pre-line)
+      for (var k = 0; k < posts.length; k++) {
+        var hEl = document.getElementById('pt-hook-' + k);
+        var bEl = document.getElementById('pt-body-' + k);
+        if (hEl) hEl.textContent = posts[k].hook || '';
+        if (bEl) bEl.textContent = posts[k].full_post || '';
+      }
+
+      // Fingerprint text
+      if (parsed.voice_fingerprint) {
+        var vfEl = document.getElementById('vf-text');
+        if (vfEl) vfEl.textContent = parsed.voice_fingerprint;
+      }
+    }
+
+    // ─── Single-click copy ───────────────────────────────────────────────────
+    var copyToastTimer = null;
+
+    function copyPostDirect(idx, btn) {
+      var text = postTexts[idx] || '';
+      var toast = document.getElementById('copy-toast');
+
+      function showToast(msg) {
+        toast.textContent = msg || 'Post copied to clipboard';
+        toast.classList.add('show');
+        if (copyToastTimer) clearTimeout(copyToastTimer);
+        copyToastTimer = setTimeout(function() {
+          toast.classList.remove('show');
+        }, 2200);
+      }
+
+      function markBtn() {
+        if (!btn) return;
+        btn.textContent = 'Copied';
+        btn.style.color = 'var(--ok)';
+        btn.style.borderColor = 'var(--ok)';
+        setTimeout(function() {
+          btn.textContent = 'Copy post';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 2200);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast();
+          markBtn();
+        }).catch(function() {
+          scratchCopy(text, showToast, markBtn);
+        });
+      } else {
+        scratchCopy(text, showToast, markBtn);
+      }
+    }
+
+    function scratchCopy(text, onSuccess, onMark) {
+      var ta = document.getElementById('copy-scratch');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.opacity = '0.01';
+      ta.focus();
+      ta.select();
+      try {
+        var ok = document.execCommand('copy');
+        ta.style.top = '-9999px';
+        ta.style.opacity = '0';
+        if (ok) { onSuccess(); onMark(); }
+        else { onSuccess('Text selected — press Ctrl/Cmd+C to copy'); }
+      } catch(e) {
+        ta.style.top = '-9999px';
+        ta.style.opacity = '0';
+        onSuccess('Select all text and press Ctrl/Cmd+C');
+      }
+    }
+  </script>
+</body>
+</html>
