@@ -1,1640 +1,1142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LinkedIn Authority Infrastructure: Content Preview</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg:  #0A0A12;
-      --bg2: #0F0F1A;
-      --sf:  rgba(255,255,255,0.042);
-      --sf2: rgba(255,255,255,0.078);
-      --bd:  rgba(106,102,163,0.20);
-      --bd2: rgba(106,102,163,0.52);
-      --v:   #6A66A3;
-      --vb:  rgba(106,102,163,0.13);
-      --vb2: rgba(106,102,163,0.22);
-      --am:  #FF9900;
-      --am2: #e08800;
-      --tx:  #FFFFFF;
-      --mu:  rgba(255,255,255,0.72);
-      --dm:  rgba(255,255,255,0.46);
-      --er:  #F08080;
-      --ok:  #019047;
-      --r:   12px;
-      --rs:  8px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Authority Preview — LinkedIn Pipeline Infrastructure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #0A0A12;
+    --bg2:          #12121E;
+    --bg3:          #0E0E19;
+    --primary:      #6A66A3;
+    --primary-light:#9B98C4;
+    --accent:       #FF9900;
+    --success:      #5AC88A;
+    --warning:      #F08080;
+    --text:         rgba(255,255,255,0.92);
+    --text-dim:     rgba(255,255,255,0.75);
+    --text-muted:   rgba(255,255,255,0.55);
+    --border:       rgba(106,102,163,0.28);
+    --border-hover: rgba(106,102,163,0.55);
+    --accent-glow:  rgba(255,153,0,0.12);
+    --radius:       12px;
+    --radius-sm:    8px;
+  }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      color: var(--tx);
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px 80px;
+  }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(106,102,163,0.15) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(106,102,163,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(106,102,163,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(rgba(255,255,255,0.032) 1px, transparent 1px);
-      background-size: 24px 24px;
-      pointer-events: none;
-      z-index: 0;
-    }
+  .container {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    z-index: 1;
+  }
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-    }
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
 
-    /* Screens */
-    .screen { display: none; }
-    .screen.active {
-      display: block;
-      animation: fadeUp 0.44s cubic-bezier(.16,1,.3,1) both;
-    }
+  .brand-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+  .header h1 {
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 800;
+    line-height: 1.18;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
 
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%       { transform: translateX(-6px); }
-      40%       { transform: translateX(6px); }
-      60%       { transform: translateX(-4px); }
-      80%       { transform: translateX(4px); }
-    }
+  .header h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
 
-    @keyframes card-in {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+  .header p {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.65;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
 
-    @keyframes pulse-ring {
-      0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0.6; }
-      100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
-    }
+  .meta-pills {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.2; }
-    }
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    background: rgba(106,102,163,0.12);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 12px;
+  }
 
-    .shaking { animation: shake 0.42s ease; }
+  /* ── CARD ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 36px 32px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
 
-    /* Brand mark */
-    .brand-mark {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 36px;
-    }
-    .brand-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--v);
-      flex-shrink: 0;
-    }
-    .brand-text {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: .18em;
-      color: var(--v);
-      opacity: 0.68;
-      text-transform: uppercase;
-    }
+  .card:focus-within {
+    border-color: var(--border-hover);
+  }
 
-    /* Headline */
-    .headline {
-      font-size: clamp(28px, 7.5vw, 44px);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.030em;
-      margin-bottom: 20px;
-    }
-    .headline .v { color: var(--v); }
+  /* ── STEP INDICATOR ── */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
 
-    /* Sub */
-    .sub {
-      color: var(--mu);
-      font-size: 15px;
-      line-height: 1.76;
-      margin-bottom: 24px;
-    }
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(255,153,0,0.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
 
-    /* Pills */
-    .pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 36px;
-    }
-    .pill {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: rgba(255,255,255,0.60);
-      border: 1px solid rgba(106,102,163,0.35);
-      padding: 5px 12px;
-      border-radius: 100px;
-      background: rgba(106,102,163,0.08);
-    }
+  .step-bar {
+    flex: 1;
+    height: 2px;
+    background: rgba(106,102,163,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
 
-    /* Form */
-    .field { margin-bottom: 20px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--mu);
-      margin-bottom: 8px;
-    }
-    .field input,
-    .field textarea {
-      width: 100%;
-      background: var(--sf);
-      border: 1px solid var(--bd);
-      border-radius: var(--rs);
-      padding: 13px 15px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      color: var(--tx);
-      outline: none;
-      transition: border-color 0.2s;
-      resize: none;
-    }
-    .field input::placeholder,
-    .field textarea::placeholder { color: var(--dm); }
-    .field input:focus,
-    .field textarea:focus {
-      border-color: var(--bd2);
-      box-shadow: 0 0 0 3px rgba(106,102,163,0.12);
-    }
-    .field textarea { line-height: 1.65; }
+  .step-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
 
-    .field-helper {
-      font-size: 13px;
-      color: var(--dm);
-      margin-top: 7px;
-    }
+  /* ── QUESTION ── */
+  .question-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
 
-    /* Char counter */
-    .char-counter {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--dm);
-      margin-top: 7px;
-      text-align: right;
-      transition: color 0.2s;
-    }
+  .question-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
 
-    /* Buttons */
-    .btn-amber {
-      display: block;
-      width: 100%;
-      padding: 15px 24px;
-      background: var(--am);
-      color: #000;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
-      border: none;
-      border-radius: var(--r);
-      cursor: pointer;
-      transition: background 0.18s;
-      text-align: center;
-      text-decoration: none;
-    }
-    .btn-amber:hover { background: var(--am2); }
+  /* ── INPUTS ── */
+  input[type="text"],
+  textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: none;
+  }
 
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--bd);
-      color: var(--mu);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 12px 22px;
-      border-radius: var(--rs);
-      cursor: pointer;
-      transition: border-color 0.18s, color 0.18s;
-      width: 100%;
-    }
-    .btn-ghost:hover { border-color: var(--v); color: var(--tx); }
+  input[type="text"]::placeholder,
+  textarea::placeholder {
+    color: rgba(255,255,255,0.28);
+  }
 
-    /* Footer note */
-    .foot-note {
-      font-size: 12px;
-      color: var(--dm);
-      text-align: center;
-      margin-top: 20px;
-    }
+  input[type="text"]:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    background: rgba(14,14,25,0.9);
+  }
 
-    /* Back nav */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--dm);
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 0;
-      margin-bottom: 28px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      transition: color 0.18s;
-    }
-    .back-link:hover { color: var(--mu); }
-    .back-link::before { content: '\2190'; font-size: 13px; }
-    .progress-wrap { margin-bottom: 32px; }
-    .progress-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: var(--mu);
-      margin-bottom: 8px;
-      text-align: right;
-    }
-    .progress-track {
-      height: 3px;
-      background: var(--sf2);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--v), var(--am));
-      border-radius: 100px;
-      transition: width 0.55s cubic-bezier(.16,1,.3,1);
-    }
+  textarea {
+    min-height: 110px;
+  }
 
-    /* Question */
-    .q-title {
-      font-size: clamp(20px, 5vw, 27px);
-      font-weight: 800;
-      line-height: 1.22;
-      margin-bottom: 10px;
-    }
-    .q-hint {
-      font-size: 14px;
-      color: var(--mu);
-      line-height: 1.68;
-      margin-bottom: 20px;
-    }
+  .char-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 6px;
+  }
 
-    .optional-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--v);
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      display: block;
-    }
+  .char-count.warn { color: var(--warning); }
 
-    /* Building screen */
-    .build-center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 0;
-      text-align: center;
-    }
-    .pulse-container {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      margin-bottom: 36px;
-    }
-    .pulse-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--v);
-      z-index: 1;
-    }
-    .pulse-ring {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 1.5px solid var(--v);
-      animation: pulse-ring 2.2s ease-out infinite;
-    }
-    .pulse-ring:nth-child(1) { animation-delay: 0s; }
-    .pulse-ring:nth-child(2) { animation-delay: 0.73s; }
-    .pulse-ring:nth-child(3) { animation-delay: 1.46s; }
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 14px 24px;
+    transition: all 0.18s;
+    text-decoration: none;
+  }
 
-    .phase-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--vb);
-      border: 1px solid var(--bd);
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--v);
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-    }
-    .phase-blink {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--v);
-      animation: blink 1.1s ease-in-out infinite;
-      flex-shrink: 0;
-    }
+  .btn-primary {
+    background: var(--accent);
+    color: #0A0A12;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 15px;
+    padding: 16px 24px;
+  }
 
-    .phase-msg {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--tx);
-      margin-bottom: 8px;
-      max-width: 380px;
-      transition: opacity 0.3s;
-    }
-    .phase-sub {
-      font-size: 13px;
-      color: var(--mu);
-      line-height: 1.6;
-      max-width: 320px;
-      transition: opacity 0.3s;
-    }
+  .btn-primary:hover { background: #ffaa22; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-    .build-progress-track {
-      width: 100%;
-      max-width: 320px;
-      height: 2px;
-      background: var(--sf2);
-      border-radius: 100px;
-      margin-top: 36px;
-      overflow: hidden;
-    }
-    @keyframes progress-pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.55; }
-    }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    padding: 10px 18px;
+  }
 
-    .build-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--v), var(--am));
-      border-radius: 100px;
-      transition: width 0.55s cubic-bezier(.16,1,.3,1);
-    }
+  .btn-ghost:hover { color: var(--text-dim); border-color: var(--border-hover); }
 
-    /* Section label */
-    .section-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--v);
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      opacity: 0.85;
-    }
+  .btn-copy {
+    background: rgba(106,102,163,0.15);
+    color: var(--primary-light);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
 
-    /* Diagnosis card */
-    .diag-card {
-      background: var(--bg2);
-      border: 1px solid var(--bd);
-      border-radius: var(--r);
-      padding: 20px 24px;
-      margin-bottom: 24px;
-    }
-    .diag-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .niche-pill {
-      font-size: 10px;
-      color: var(--dm);
-      border: 1px solid var(--bd);
-      border-radius: 100px;
-      padding: 4px 11px;
-      max-width: 220px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .diag-item {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 20px;
-      padding-left: 12px;
-      border-left: 2px solid rgba(106,102,163,0.30);
-    }
-    .diag-item:last-of-type { margin-bottom: 0; }
-    .diag-num {
-      flex-shrink: 0;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--vb);
-      border: 1px solid var(--bd);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--v);
-      margin-top: 1px;
-    }
-    .diag-content { flex: 1; min-width: 0; }
-    .diag-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--tx);
-      margin-bottom: 5px;
-    }
-    .diag-body {
-      font-size: 13px;
-      color: rgba(255,255,255,0.70);
-      line-height: 1.68;
-      margin-bottom: 7px;
-    }
-    .diag-impact {
-      font-size: 12px;
-      color: var(--er);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .impact-dot { color: var(--er); line-height: 1; }
+  .btn-copy:hover { background: rgba(106,102,163,0.25); color: var(--text); }
+  .btn-copy.copied { background: rgba(90,200,138,0.15); color: var(--success); border-color: rgba(90,200,138,0.3); }
 
-    .diag-footer {
-      font-size: 13px;
-      color: rgba(255,255,255,0.52);
-      padding-top: 14px;
-      margin-top: 18px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
+  /* ── LOADING ── */
+  .loading-screen {
+    text-align: center;
+    padding: 60px 36px;
+  }
 
-    /* Voice fingerprint */
-    .fingerprint-badge {
-      background: var(--vb);
-      border: 1px solid var(--bd);
-      border-radius: var(--rs);
-      padding: 13px 16px;
-      margin-bottom: 24px;
-    }
-    .fingerprint-badge .section-label { display: block; margin-bottom: 7px; }
-    .fingerprint-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+  .spinner-wrap {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 28px;
+    position: relative;
+  }
 
-    /* Output intro */
-    .output-intro { margin-bottom: 28px; }
-    .output-intro p {
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1.55;
-      color: var(--tx);
-    }
+  .spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid rgba(106,102,163,0.2);
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+  }
 
-    /* Post cards */
-    .post-card {
-      background: var(--sf);
-      border: 1px solid var(--bd);
-      border-radius: var(--r);
-      padding: 24px;
-      margin-bottom: 20px;
-      opacity: 0;
-      animation: card-in 0.5s cubic-bezier(.16,1,.3,1) both;
-      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
-    }
-    .post-card:hover {
-      border-color: rgba(106,102,163,0.52);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(106,102,163,0.10);
-    }
-    .post-header { margin-bottom: 14px; }
-    .type-badge {
-      display: inline-block;
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      padding: 4px 10px;
-      border-radius: 100px;
-    }
-    .badge-violet { background: var(--vb2); color: var(--v);  border: 1px solid var(--bd2); }
-    .badge-amber  { background: rgba(255,153,0,.15); color: var(--am); border: 1px solid rgba(255,153,0,.3); }
-    .badge-green  { background: rgba(1,144,71,.12);  color: #3ecf8e; border: 1px solid rgba(1,144,71,.25); }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-    .hook-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--dm);
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      margin-bottom: 8px;
-    }
-    .hook-text {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--tx);
-      line-height: 1.44;
-      margin-bottom: 14px;
-      white-space: pre-line;
-    }
-    .hook-divider {
-      height: 1px;
-      background: var(--bd);
-      margin-bottom: 14px;
-    }
-    .post-body {
-      font-size: 14px;
-      color: rgba(255,255,255,0.85);
-      line-height: 1.8;
-      white-space: pre-line;
-      margin-bottom: 14px;
-    }
+  .loading-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
 
-    .purpose-badge {
-      display: inline-block;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .purpose-green  { background: rgba(1,144,71,.10);  color: #3ecf8e; }
-    .purpose-amber  { background: rgba(255,153,0,.10); color: #FFB940; }
-    .purpose-violet { background: var(--vb);           color: #9896c8; }
+  .loading-steps {
+    list-style: none;
+    padding: 0;
+    margin-top: 24px;
+  }
 
-    .post-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      gap: 12px;
-    }
-    .word-count {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: var(--dm);
-      flex-shrink: 0;
-    }
-    .copy-btn {
-      width: auto;
-      padding: 8px 18px;
-      font-size: 13px;
-      color: var(--am);
-      border-color: rgba(255,153,0,0.30);
-    }
-    .copy-btn:hover { border-color: var(--am); color: var(--am); }
+  .loading-steps li {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 6px 0;
+    transition: color 0.3s;
+  }
 
-    /* Value stack */
-    .value-stack {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 28px;
-      margin-top: 8px;
-      margin-bottom: 0;
-    }
-    .value-stack .section-label { display: block; margin-bottom: 16px; }
-    .value-item {
-      font-size: 14px;
-      color: rgba(255,255,255,0.80);
-      line-height: 2.1;
-    }
-    .value-item::before { content: '\2192  '; color: var(--am); }
-    .value-sep {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.60);
-      margin: 18px 0;
-      font-style: italic;
-    }
-    .value-full {
-      font-size: 13px;
-      color: rgba(255,255,255,0.62);
-      line-height: 1.78;
-    }
+  .loading-steps li.active { color: var(--text-dim); }
+  .loading-steps li.done { color: var(--success); }
 
-    /* CTA block */
-    .cta-block {
-      background: var(--vb2);
-      border: 1px solid var(--bd2);
-      border-top: 2px solid var(--am);
-      border-radius: var(--r);
-      padding: 28px;
-      margin-top: 28px;
-    }
-    .cta-eyebrow {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--am);
-      text-transform: uppercase;
-      letter-spacing: .14em;
-      margin-bottom: 10px;
-    }
-    .cta-heading {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.018em;
-      margin-bottom: 14px;
-      line-height: 1.22;
-    }
-    .cta-body {
-      font-size: 14px;
-      color: rgba(255,255,255,0.75);
-      line-height: 1.78;
-      margin-bottom: 24px;
-    }
-    .cta-leave {
-      font-size: 12px;
-      color: rgba(255,255,255,0.46);
-      text-align: center;
-      margin-top: 12px;
-    }
+  /* ── RESULTS ── */
+  .results-header {
+    margin-bottom: 28px;
+  }
 
-    /* Error screen */
-    .err-center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 60px 0;
-    }
-    .err-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: rgba(240,128,128,.1);
-      border: 1px solid rgba(240,128,128,.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: var(--er);
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .err-heading { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
-    .err-body    { font-size: 14px; color: var(--mu); margin-bottom: 12px; }
-    .err-code    { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--dm); margin-bottom: 24px; max-width: 380px; word-break: break-word; }
+  .results-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
 
-    /* Single-click copy toast */
-    .copy-toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(12px);
-      background: var(--ok);
-      color: #fff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 10px 22px;
-      border-radius: 100px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.22s, transform 0.22s;
-      z-index: 200;
-      white-space: nowrap;
-    }
-    .copy-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    /* Inline validation error */
-    .field-error {
-      font-size: 12px;
-      color: var(--er);
-      margin-top: 6px;
-      min-height: 16px;
-      font-weight: 500;
-    }
-    /* Privacy note */
-    .privacy-note {
-      font-size: 11px;
-      color: rgba(255,255,255,0.32);
-      text-align: center;
-      margin-top: 10px;
-    }
+  .results-header p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
 
-    @media (max-width: 480px) {
-      .diag-header { flex-direction: column; }
-      .post-footer { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
+  /* Voice fingerprint */
+  .fingerprint-card {
+    background: rgba(106,102,163,0.08);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+
+  .fingerprint-card .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    margin-bottom: 10px;
+  }
+
+  .fingerprint-card p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* Diagnosis section */
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .diagnosis-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .diagnosis-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .diag-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(240,128,128,0.12);
+    border: 1px solid rgba(240,128,128,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    margin-top: 1px;
+  }
+
+  .diag-content strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .diag-content p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* Post cards */
+  .post-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 24px 18px;
+    margin-bottom: 14px;
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  .post-type-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(255,153,0,0.25);
+    border-radius: 5px;
+    padding: 4px 10px;
+  }
+
+  .post-body {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .post-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* CTA block */
+  .cta-block {
+    background: rgba(255,153,0,0.06);
+    border: 1px solid rgba(255,153,0,0.2);
+    border-radius: var(--radius-sm);
+    padding: 22px 24px;
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .cta-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .cta-block p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .cta-block a {
+    display: inline-block;
+    background: var(--accent);
+    color: #0A0A12;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: background 0.18s;
+  }
+
+  .cta-block a:hover { background: #ffaa22; }
+
+  /* Error state */
+  .error-card {
+    background: rgba(240,128,128,0.08);
+    border: 1px solid rgba(240,128,128,0.3);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .error-card p { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
+
+  /* Privacy note */
+  .privacy-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg2);
+    border: 1px solid var(--success);
+    color: var(--success);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* SCREEN VISIBILITY */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* name+niche row */
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* Optional badge */
+  .optional-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Niche select chips */
+  .niche-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .niche-chip {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-light);
+    background: rgba(106,102,163,0.1);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .niche-chip:hover { border-color: var(--primary); color: var(--text); }
+  .niche-chip.selected {
+    background: rgba(255,153,0,0.12);
+    border-color: rgba(255,153,0,0.5);
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 20px 20px; }
+    .field-row { grid-template-columns: 1fr; }
+    .post-card { padding: 18px 16px 14px; }
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
 
-    <!-- SCREEN 0: Entry -->
-    <div class="screen active" id="s0">
-      <div class="brand-mark">
-        <div class="brand-dot"></div>
-        <span class="brand-text">LinkedIn Authority Infrastructure</span>
-      </div>
-      <h1 class="headline">Your best LinkedIn content<br><span class="v">already exists.</span></h1>
-      <p class="sub">For fractional CMOs, CROs, and GTM advisors.<br>Four questions. Ten minutes. Three posts built from your own thinking, written in your voice.<br>No email. No card. No template.</p>
-      <div class="pills">
-        <span class="pill">10 minutes</span>
-        <span class="pill">No email required</span>
-        <span class="pill">3 publish-ready posts</span>
-        <span class="pill">Built from your thinking</span>
-      </div>
-      <div class="field">
-        <label for="name">Your name</label>
-        <input type="text" id="name" placeholder="First name is fine" autocomplete="off" maxlength="80">
-      </div>
-      <div class="field">
-        <label for="niche">Your niche in one line</label>
-        <input type="text" id="niche" placeholder="e.g. Fractional CMO helping B2B SaaS companies build GTM systems that generate pipeline" autocomplete="off" maxlength="220">
-        <p class="field-helper">Be specific. The more precise your niche, the more accurate your pipeline diagnosis.</p>
-      </div>
-      <button class="btn-amber" onclick="s0next()">Diagnose my pipeline gaps</button>
-      <p class="foot-note">For fractional executives in active practice. Takes 10 minutes. Nothing to install.</p>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="brand-label">LinkedIn Pipeline Infrastructure</span>
+    <h1>Your best LinkedIn content<br><em>already exists.</em></h1>
+    <p>Four questions. Ten minutes. Three posts built from your own thinking — written in your voice, not a template.</p>
+    <div class="meta-pills">
+      <span class="pill">10 minutes</span>
+      <span class="pill">No email required</span>
+      <span class="pill">3 publish-ready posts</span>
+      <span class="pill">Built from your thinking</span>
     </div>
+  </div>
 
-    <!-- SCREEN 1: Q1 -->
-    <div class="screen" id="s1">
-      <button class="back-link" onclick="go(0)">Back</button>
-      <div class="progress-wrap">
-        <div class="progress-label">1 of 4</div>
-        <div class="progress-track"><div class="progress-fill" style="width:25%"></div></div>
-      </div>
-      <h2 class="q-title">What's the most useful thing you told a client this month?</h2>
-      <p class="q-hint">The insight that changed how they were thinking, not a general observation. The specific thing that shifted how they saw their problem. 2 to 3 sentences is enough.</p>
-      <div class="field">
-        <textarea id="q1" rows="5" placeholder="The thing that changed how they saw the problem..." oninput="updateCounter('q1','c1',60)"></textarea>
-        <div class="char-counter" id="c1">0 / 60 min</div>
-        <div class="field-error" id="e1"></div>
-      </div>
-      <button class="btn-amber" onclick="s1next()">Continue</button>
-      <p class="privacy-note">Your answers are used only to generate your posts. Nothing is stored.</p>
-    </div>
+  <!-- SCREEN 0 — Name + Niche -->
+  <div class="screen active" id="screen-0">
+    <div class="card">
+      <div class="question-label">Who are you, and who do you serve?</div>
+      <div class="question-hint">This is how the system personalises your pipeline diagnosis and matches your posts to your actual buyers.</div>
 
-    <!-- SCREEN 1b: Q2 -->
-    <div class="screen" id="s1b">
-      <button class="back-link" onclick="go(1)">Back</button>
-      <div class="progress-wrap">
-        <div class="progress-label">2 of 4</div>
-        <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
-      </div>
-      <h2 class="q-title">What objection came up in a recent sales conversation, and what moved them forward?</h2>
-      <p class="q-hint">What they pushed back on. What you said back. The reframe you used on that prospect is almost always your strongest opinion post.</p>
-      <div class="field">
-        <textarea id="q2" rows="5" placeholder="They said... and I responded by showing them..." oninput="updateCounter('q2','c2',60)"></textarea>
-        <div class="char-counter" id="c2">0 / 60 min</div>
-        <div class="field-error" id="e2"></div>
-      </div>
-      <button class="btn-amber" onclick="s1bnext()">Continue</button>
-    </div>
-
-    <!-- SCREEN 1c: Q3 -->
-    <div class="screen" id="s1c">
-      <button class="back-link" onclick="go('1b')">Back</button>
-      <div class="progress-wrap">
-        <div class="progress-label">3 of 4</div>
-        <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
-      </div>
-      <h2 class="q-title">What do you wish your ideal clients understood before they get on a call with you?</h2>
-      <p class="q-hint">The assumption they arrive with that makes the first conversation harder. The thing that would make every discovery call easier if they already knew it.</p>
-      <div class="field">
-        <textarea id="q3" rows="5" placeholder="Most people I speak with assume... but what's actually happening is..." oninput="updateCounter('q3','c3',60)"></textarea>
-        <div class="char-counter" id="c3">0 / 60 min</div>
-        <div class="field-error" id="e3"></div>
-      </div>
-      <button class="btn-amber" onclick="s1cnext()">Continue</button>
-    </div>
-
-    <!-- SCREEN 1d: Q4 Voice Anchor -->
-    <div class="screen" id="s1d">
-      <button class="back-link" onclick="go('1c')">Back</button>
-      <div class="progress-wrap">
-        <div class="progress-label">4 of 4</div>
-        <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
-      </div>
-      <h2 class="q-title">Paste the best sentence you've ever written or said about your work.</h2>
-      <p class="q-hint">From a post, a proposal, an email. Anything. Even one sentence. This is how the system learns to write like you, not like a LinkedIn template.</p>
-      <span class="optional-label">OPTIONAL: THIS DRAMATICALLY IMPROVES YOUR OUTPUT</span>
-      <div class="field">
-        <textarea id="q4" rows="4" placeholder="e.g. Most consultants don't have a content problem. They have an infrastructure problem..."></textarea>
-        <p class="field-helper">If you skip this, the system still works. It will infer your voice from your previous answers.</p>
-      </div>
-      <button class="btn-amber" onclick="s1dnext()">Build my posts</button>
-    </div>
-
-    <!-- SCREEN 2: Building -->
-    <div class="screen" id="s2">
-      <div class="build-center">
-        <div class="pulse-container">
-          <div class="pulse-ring"></div>
-          <div class="pulse-ring"></div>
-          <div class="pulse-ring"></div>
-          <div class="pulse-dot"></div>
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="inp-name">Your first name</label>
+          <input type="text" id="inp-name" placeholder="e.g. Sarah" maxlength="40">
         </div>
-        <div class="phase-badge">
-          <div class="phase-blink"></div>
-          <span id="phase-label">Diagnosing</span>
-        </div>
-        <p class="phase-msg" id="phase-msg">Diagnosing your LinkedIn pipeline gaps...</p>
-        <p class="phase-sub" id="phase-sub">Analyzing your niche to identify what is costing you conversations</p>
-        <div class="build-progress-track">
-          <div class="build-progress-fill" id="build-progress" style="width:0%"></div>
+        <div>
+          <label class="field-label">What you do</label>
+          <div class="niche-chips" id="niche-chips">
+            <span class="niche-chip" data-value="executive coach">Executive Coach</span>
+            <span class="niche-chip" data-value="leadership coach">Leadership Coach</span>
+            <span class="niche-chip" data-value="business coach">Business Coach</span>
+            <span class="niche-chip" data-value="fractional CFO">Fractional CFO</span>
+            <span class="niche-chip" data-value="fractional COO">Fractional COO</span>
+          </div>
+          <input type="text" id="inp-niche" placeholder="Or type your own..." maxlength="80">
         </div>
       </div>
+
+      <label class="field-label" for="inp-icp">Who are your ideal clients?<span class="optional-badge">optional</span></label>
+      <input type="text" id="inp-icp" placeholder="e.g. CEOs and CHROs at $20M-$100M companies" maxlength="120" style="margin-bottom:0;">
+      <div class="question-hint" style="margin-top:10px; margin-bottom:0;">The more specific, the sharper your pipeline diagnosis.</div>
+    </div>
+    <button class="btn btn-primary" id="btn-start" onclick="goToQ(1)">Start building my posts →</button>
+    <p class="privacy-note">Your answers generate your posts. Nothing is stored or shared.</p>
+  </div>
+
+  <!-- SCREEN 1 -->
+  <div class="screen" id="screen-1">
+    <div class="card">
+      <div class="step-indicator">
+        <span class="step-num">1 of 4</span>
+        <div class="step-bar"><div class="step-bar-fill" style="width:25%"></div></div>
+      </div>
+      <div class="question-label">What's the most useful thing you told a client this month?</div>
+      <div class="question-hint">The insight that shifted how they saw their problem. Not a general observation — the specific reframe that changed how they were thinking. 2–3 sentences is enough.</div>
+      <textarea id="q1" placeholder="e.g. I told a client last week that their team wasn't underperforming — they were operating without a clear accountability structure. The problem wasn't people. It was architecture." maxlength="600" oninput="updateCount(this,'c1',600)"></textarea>
+      <div class="char-count" id="c1">0 / 600</div>
+    </div>
+    <button class="btn btn-primary" onclick="goToQ(2)">Continue →</button>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-ghost" onclick="goToQ(0)">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div class="screen" id="screen-2">
+    <div class="card">
+      <div class="step-indicator">
+        <span class="step-num">2 of 4</span>
+        <div class="step-bar"><div class="step-bar-fill" style="width:50%"></div></div>
+      </div>
+      <div class="question-label">What objection came up in a recent sales conversation — and what moved them forward?</div>
+      <div class="question-hint">What they pushed back on. What you said that shifted it. The reframe you used on that prospect is almost always your strongest opinion post.</div>
+      <textarea id="q2" placeholder="e.g. They said they weren't sure coaching would change anything if the board wasn't aligned. I told them the board doesn't need to change for the CEO to lead differently — and that's always where real leverage lives." maxlength="600" oninput="updateCount(this,'c2',600)"></textarea>
+      <div class="char-count" id="c2">0 / 600</div>
+    </div>
+    <button class="btn btn-primary" onclick="goToQ(3)">Continue →</button>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-ghost" onclick="goToQ(1)">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 -->
+  <div class="screen" id="screen-3">
+    <div class="card">
+      <div class="step-indicator">
+        <span class="step-num">3 of 4</span>
+        <div class="step-bar"><div class="step-bar-fill" style="width:75%"></div></div>
+      </div>
+      <div class="question-label">What do you wish your ideal clients understood before getting on a call with you?</div>
+      <div class="question-hint">The assumption they arrive with that makes the first conversation harder. What would make every discovery call easier if they already knew it.</div>
+      <textarea id="q3" placeholder="e.g. Most clients arrive thinking their challenge is external — the market, the team, the board. The work I do starts with helping them see what they're contributing to the problem they're trying to solve." maxlength="600" oninput="updateCount(this,'c3',600)"></textarea>
+      <div class="char-count" id="c3">0 / 600</div>
+    </div>
+    <button class="btn btn-primary" onclick="goToQ(4)">Continue →</button>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-ghost" onclick="goToQ(2)">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 -->
+  <div class="screen" id="screen-4">
+    <div class="card">
+      <div class="step-indicator">
+        <span class="step-num">4 of 4</span>
+        <div class="step-bar"><div class="step-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="question-label">
+        Paste the best sentence you've ever written or said about your work.
+        <span class="optional-badge">Strongly recommended</span>
+      </div>
+      <div class="question-hint">From a post, a proposal, a client email. Even one sentence. This is how the system learns your voice — not a template, not a persona. Your actual voice. If you skip it, the system infers from your previous answers.</div>
+      <textarea id="q4" placeholder="e.g. Real leadership development doesn't happen in the training room. It happens in the conversation you've been avoiding for six months." maxlength="500" oninput="updateCount(this,'c4',500)" style="min-height:90px;"></textarea>
+      <div class="char-count" id="c4">0 / 500</div>
+    </div>
+    <button class="btn btn-primary" id="btn-generate" onclick="generate()">Build my posts →</button>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-ghost" onclick="goToQ(3)">← Back</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="screen" id="screen-loading">
+    <div class="card loading-screen">
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+      </div>
+      <div class="loading-label" id="loading-label">Analysing your voice</div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.6; max-width:360px; margin:0 auto;">Extracting your intellectual property and building posts from your actual thinking.</p>
+      <ul class="loading-steps" id="loading-steps">
+        <li id="ls-1">Identifying your voice patterns</li>
+        <li id="ls-2">Diagnosing your pipeline gaps</li>
+        <li id="ls-3">Writing your teaching post</li>
+        <li id="ls-4">Writing your opinion post</li>
+        <li id="ls-5">Writing your story post</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="screen-results">
+    <div class="results-header">
+      <h2 id="results-title">Your posts are ready.</h2>
+      <p id="results-sub">Built from your answers, written in your voice. Copy each post and paste directly into LinkedIn's draft screen.</p>
     </div>
 
-    <!-- SCREEN 3: Output -->
-    <div class="screen" id="s3">
-      <div id="s3-content"></div>
+    <!-- Voice fingerprint -->
+    <div class="fingerprint-card" id="fingerprint-card">
+      <div class="label">Voice fingerprint</div>
+      <p id="fingerprint-text"></p>
     </div>
 
-    <!-- SCREEN 4: Error -->
-    <div class="screen" id="s4">
-      <div class="err-center">
-        <div class="err-icon">!</div>
-        <h2 class="err-heading">Something went wrong.</h2>
-        <p class="err-body">Your answers are saved. Tap below to try again.</p>
-        <p class="err-code" id="err-msg"></p>
-        <button class="btn-amber" style="max-width:280px;margin:0 auto" onclick="generate()">Try again</button>
+    <!-- Diagnosis -->
+    <div class="section-label">Pipeline diagnosis</div>
+    <div class="diagnosis-grid" id="diagnosis-grid"></div>
+
+    <!-- Posts -->
+    <div class="section-label">Your posts</div>
+    <div id="posts-container"></div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <h3>This is one extraction. The full system does this every month.</h3>
+      <p>80 ICP-matched prospects added to your audience. A full month of posts, carousels, DM scripts, and connection notes. Built once in 90 minutes. Running continuously.</p>
+      <a href="https://authorityinfra.netlify.app/" target="_blank">See how the full system works</a>
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn btn-ghost" onclick="restart()">← Start again</button>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="screen" id="screen-error">
+    <div class="card">
+      <div class="error-card">
+        <p id="error-msg">Something went wrong. Your answers are saved — tap below to try again.</p>
+        <button class="btn btn-primary" style="max-width:220px;" onclick="retry()">Try again</button>
       </div>
     </div>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-ghost" onclick="goToQ(4)">← Edit answers</button>
+    </div>
+  </div>
 
-  </div><!-- /.wrap -->
+</div>
 
-  <!-- Single-click copy: toast notification + hidden scratch textarea for fallback -->
-  <div class="copy-toast" id="copy-toast">Post copied to clipboard</div>
-  <textarea id="copy-scratch" readonly style="position:fixed;top:-9999px;left:-9999px;opacity:0;" aria-hidden="true"></textarea>
+<!-- Toast -->
+<div class="toast" id="toast">Copied to clipboard</div>
 
-  <script>
-    // ─── State ────────────────────────────────────────────────────────────────
-    var D = { name: '', niche: '', q1: '', q2: '', q3: '', q4: '' };
-    var postTexts = [];
-    var phaseInterval = null;
+<script>
+// ── STATE ──
+let state = {
+  name: '',
+  niche: '',
+  icp: '',
+  q1: '', q2: '', q3: '', q4: '',
+  result: null
+};
 
-    // Phases run once in sequence — never loop back.
-    // Each phase auto-advances. After the last, holds on a finalising state.
-    var PHASES = [
-      {
-        label: 'Diagnosing',
-        msg:   'Mapping your pipeline gaps',
-        sub:   'Identifying the three specific gaps costing you inbound conversations'
-      },
-      {
-        label: 'Extracting',
-        msg:   'Extracting your voice fingerprint',
-        sub:   'Capturing your sentence patterns, vocabulary, and diagnostic framing'
-      },
-      {
-        label: 'Writing',
-        msg:   'Writing your three posts',
-        sub:   'Teaching, opinion, and story — each built for a different job in your pipeline'
-      },
-      {
-        label: 'Finalising',
-        msg:   'Running quality checks',
-        sub:   'Auditing each post before handing them to you'
-      }
-    ];
-    var phaseIdx = 0;
+let selectedNiche = '';
 
-    function resetTool() {
-      D = { name: '', niche: '', q1: '', q2: '', q3: '', q4: '' };
-      postTexts = [];
-      ['name','niche','q1','q2','q3','q4'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      ['c1','c2','c3'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) { el.textContent = '0 / 60 min'; el.style.color = 'var(--dm)'; }
-      });
-      go(0);
+// ── NICHE CHIPS ──
+document.querySelectorAll('.niche-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedNiche = chip.dataset.value;
+    document.getElementById('inp-niche').value = '';
+    document.getElementById('inp-niche').placeholder = 'Or type your own...';
+  });
+});
+
+document.getElementById('inp-niche').addEventListener('input', () => {
+  if (document.getElementById('inp-niche').value) {
+    document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('selected'));
+    selectedNiche = '';
+  }
+});
+
+// ── CHAR COUNT ──
+function updateCount(el, countId, max) {
+  const c = document.getElementById(countId);
+  const n = el.value.length;
+  c.textContent = `${n} / ${max}`;
+  c.className = 'char-count' + (n > max * 0.9 ? ' warn' : '');
+}
+
+// ── NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToQ(n) {
+  if (n === 0) { showScreen('screen-0'); return; }
+  if (n === 1) {
+    // Save name + niche
+    state.name = document.getElementById('inp-name').value.trim();
+    const typedNiche = document.getElementById('inp-niche').value.trim();
+    state.niche = typedNiche || selectedNiche;
+    state.icp = document.getElementById('inp-icp').value.trim();
+    if (!state.niche) {
+      document.getElementById('inp-niche').focus();
+      return;
     }
-
-    // ─── Screen navigation ────────────────────────────────────────────────────
-    function go(n) {
-      var all = document.querySelectorAll('.screen');
-      for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
-      var el = document.getElementById('s' + n);
-      if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
+    showScreen('screen-1');
+    return;
+  }
+  if (n === 2) {
+    state.q1 = document.getElementById('q1').value.trim();
+    if (!state.q1 || state.q1.length < 20) {
+      document.getElementById('q1').focus();
+      return;
     }
-
-    // ─── Shake on validation fail ─────────────────────────────────────────────
-    function shake(el) {
-      el.classList.remove('shaking');
-      void el.offsetWidth;
-      el.classList.add('shaking');
-      el.addEventListener('animationend', function handler() {
-        el.classList.remove('shaking');
-        el.removeEventListener('animationend', handler);
-      });
+    showScreen('screen-2');
+    return;
+  }
+  if (n === 3) {
+    state.q2 = document.getElementById('q2').value.trim();
+    if (!state.q2 || state.q2.length < 20) {
+      document.getElementById('q2').focus();
+      return;
     }
-
-    // ─── Character counter ────────────────────────────────────────────────────
-    function updateCounter(taId, ctId, min) {
-      var len = document.getElementById(taId).value.length;
-      var ct  = document.getElementById(ctId);
-      ct.textContent  = len >= min ? 'Good to go' : len + ' / ' + min + ' min';
-      ct.style.color  = len >= min ? 'var(--ok)' : 'var(--dm)';
+    showScreen('screen-3');
+    return;
+  }
+  if (n === 4) {
+    state.q3 = document.getElementById('q3').value.trim();
+    if (!state.q3 || state.q3.length < 20) {
+      document.getElementById('q3').focus();
+      return;
     }
+    showScreen('screen-4');
+    return;
+  }
+}
 
-    // ─── Screen transitions ───────────────────────────────────────────────────
-    function s0next() {
-      var name  = document.getElementById('name').value.trim();
-      var niche = document.getElementById('niche').value.trim();
-      if (name.length < 2)   { shake(document.getElementById('name'));  return; }
-      if (niche.length < 15) { shake(document.getElementById('niche')); return; }
-      D.name  = name;
-      D.niche = niche;
-      go(1);
+// ── LOADING ANIMATION ──
+function animateLoading() {
+  const steps = [
+    { id: 'ls-1', label: 'Identifying your voice patterns' },
+    { id: 'ls-2', label: 'Diagnosing your pipeline gaps' },
+    { id: 'ls-3', label: 'Writing your teaching post' },
+    { id: 'ls-4', label: 'Writing your opinion post' },
+    { id: 'ls-5', label: 'Writing your story post' },
+  ];
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > 0) {
+      document.getElementById(steps[i-1].id).classList.remove('active');
+      document.getElementById(steps[i-1].id).classList.add('done');
+      document.getElementById(steps[i-1].id).textContent = '✓ ' + steps[i-1].label;
     }
-
-    function clearErr(id) {
-      var el = document.getElementById(id);
-      if (el) el.textContent = '';
+    if (i < steps.length) {
+      document.getElementById(steps[i].id).classList.add('active');
+      document.getElementById('loading-label').textContent = steps[i].label;
+      i++;
+    } else {
+      clearInterval(interval);
     }
-    function showErr(fieldId, errId, msg) {
-      shake(document.getElementById(fieldId));
-      var el = document.getElementById(errId);
-      if (el) el.textContent = msg;
-      document.getElementById(fieldId).focus();
-    }
+  }, 1400);
+  return interval;
+}
 
-    function s1next() {
-      var val = document.getElementById('q1').value.trim();
-      if (val.length < 60) {
-        showErr('q1', 'e1', 'A little more detail here — the more specific the insight, the stronger the post.');
-        return;
-      }
-      clearErr('e1');
-      D.q1 = val;
-      go('1b');
-    }
+// ── GENERATE ──
+async function generate() {
+  state.q4 = document.getElementById('q4').value.trim();
 
-    function s1bnext() {
-      var val = document.getElementById('q2').value.trim();
-      if (val.length < 60) {
-        showErr('q2', 'e2', 'Include the objection and what you said back — that contrast is what makes the opinion post work.');
-        return;
-      }
-      clearErr('e2');
-      D.q2 = val;
-      go('1c');
-    }
+  showScreen('screen-loading');
+  const loadInterval = animateLoading();
 
-    function s1cnext() {
-      var val = document.getElementById('q3').value.trim();
-      if (val.length < 60) {
-        showErr('q3', 'e3', 'Name the specific assumption most clients arrive with — vague answers produce generic posts.');
-        return;
-      }
-      clearErr('e3');
-      D.q3 = val;
-      go('1d');
-    }
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt();
 
-    function s1dnext() {
-      D.q4 = document.getElementById('q4').value.trim();
-      generate();
-    }
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
 
-    // ─── Building screen phases — linear, no looping ─────────────────────────
-    // Phases advance forward only. Once all 4 are shown, progress bar pulses
-    // gently to signal "working" without implying a restart.
-    function startBuildingPhases() {
-      phaseIdx = 0;
-      applyPhase(phaseIdx);
-      if (phaseInterval) clearInterval(phaseInterval);
-      phaseInterval = setInterval(function() {
-        if (phaseIdx < PHASES.length - 1) {
-          phaseIdx++;
-          applyPhase(phaseIdx);
-        }
-        // Final phase reached — stop advancing, let progress bar hold at 95%
-        // A gentle CSS pulse on the fill communicates "still working" without looping
-      }, 3200);
-    }
+    clearInterval(loadInterval);
 
-    function stopBuildingPhases() {
-      if (phaseInterval) { clearInterval(phaseInterval); phaseInterval = null; }
-    }
+    if (!response.ok) throw new Error(`API error ${response.status}`);
 
-    function applyPhase(i) {
-      var p = PHASES[i];
-      var isFinal = (i === PHASES.length - 1);
-      // Progress: 25% per phase, hold at 95% on final to avoid implying completion
-      var pct = isFinal ? 95 : Math.round((i + 1) / (PHASES.length) * 90);
-      document.getElementById('phase-label').textContent = p.label;
-      document.getElementById('phase-msg').textContent   = p.msg;
-      document.getElementById('phase-sub').textContent   = p.sub;
-      var fill = document.getElementById('build-progress');
-      fill.style.width = pct + '%';
-      if (isFinal) {
-        fill.style.animation = 'progress-pulse 2s ease-in-out infinite';
-      } else {
-        fill.style.animation = '';
-      }
-    }
+    const data = await response.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
 
-    function setRetryMsg(attempt) {
-      document.getElementById('phase-msg').textContent = 'Taking a moment, retrying now';
-      document.getElementById('phase-sub').textContent = 'Attempt ' + attempt + ' of 3 — your answers are safe';
-    }
+    // Strip markdown fences
+    const clean = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const result = JSON.parse(clean);
 
-    // ─── HTML escape ──────────────────────────────────────────────────────────
-    function esc(s) {
-      return String(s)
-        .replace(/&/g,  '&amp;')
-        .replace(/</g,  '&lt;')
-        .replace(/>/g,  '&gt;')
-        .replace(/"/g,  '&quot;');
-    }
+    state.result = result;
+    renderResults(result);
+    showScreen('screen-results');
 
-    // ─── Pipeline diagnosis (rule-based, no API call) ─────────────────────────
-    function buildDiagnosis(niche) {
-      var n = (niche || '').toLowerCase();
+  } catch (err) {
+    clearInterval(loadInterval);
+    console.error(err);
+    document.getElementById('error-msg').textContent =
+      err.message.includes('JSON') 
+        ? 'Received an unexpected response. Your answers are saved — try again.' 
+        : 'Something went wrong. Your answers are saved — tap below to try again.';
+    showScreen('screen-error');
+  }
+}
 
-      var reader = 'fractional executives';
-      if (n.indexOf('saas') !== -1 || n.indexOf('software') !== -1)      reader = 'SaaS founders and revenue leaders';
-      else if (n.indexOf('cro') !== -1 || n.indexOf('revenue') !== -1)   reader = 'revenue leaders';
-      else if (n.indexOf('cmo') !== -1 || n.indexOf('marketing') !== -1) reader = 'marketing leaders';
-      else if (n.indexOf('gtm') !== -1 || n.indexOf('go-to-market') !== -1) reader = 'GTM and growth leaders';
-      else if (n.indexOf('ops') !== -1 || n.indexOf('operations') !== -1) reader = 'operations leaders';
-      else if (n.indexOf('consulting') !== -1 || n.indexOf('consultant') !== -1) reader = 'B2B consultants and advisors';
+function retry() { generate(); }
+function restart() {
+  state = { name:'', niche:'', icp:'', q1:'', q2:'', q3:'', q4:'', result:null };
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-niche').value = '';
+  document.getElementById('inp-icp').value = '';
+  document.getElementById('q1').value = '';
+  document.getElementById('q2').value = '';
+  document.getElementById('q3').value = '';
+  document.getElementById('q4').value = '';
+  document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('selected'));
+  selectedNiche = '';
+  showScreen('screen-0');
+}
 
-      return [
-        {
-          num:    '1',
-          title:  'Profile converting visitors to contacts',
-          body:   'Most ' + reader + ' lead their profile with their job title or employment history, not the specific problem they solve for clients. A potential client lands on the profile, reads the headline, and moves on because they could not tell in three seconds what the engagement would actually fix for them.',
-          impact: 'High-intent visitors leave without contacting you.'
-        },
-        {
-          num:    '2',
-          title:  'Content generating inbound conversations',
-          body:   'Posting without a handraiser mechanic generates engagement but no inbound pipeline conversations. Every post needs a specific next step for interested prospects: a keyword, a named deliverable, a clear reason to reply. Without that mechanic, likes accumulate. Discovery calls do not.',
-          impact: 'Engagement stays on the post. Pipeline does not start.'
-        },
-        {
-          num:    '3',
-          title:  'Expertise reaching the right buyers',
-          body:   'The frameworks used in client engagements, the objections handled in sales calls, the insights that move deals forward: all of it stays locked inside those conversations. It never reaches the portion of the network who will never get on a call unless LinkedIn shows them the thinking first.',
-          impact: 'Referral pipeline thins. No system replaces it.'
-        }
-      ];
-    }
+// ── PROMPTS ──
+function buildSystemPrompt() {
+  return `You are a LinkedIn content strategist and voice analyst who works exclusively with executive coaches, leadership coaches, business coaches, fractional CFOs, and fractional COOs. Your job is to:
+1. Analyse a practitioner's voice from their answers
+2. Diagnose the specific LinkedIn pipeline gaps relevant to their situation
+3. Write three LinkedIn posts that sound exactly like them — not like a LinkedIn template
 
-    // ─── safeParseJSON — defined exactly once ─────────────────────────────────
-    function safeParseJSON(raw) {
-      if (!raw || !raw.trim()) throw new Error('Empty response. Please try again.');
-      // Strip markdown code fences if model returns them despite instructions
-      var cleaned = raw.trim();
-      if (cleaned.indexOf('```') !== -1) {
-        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
-      }
-      var first = cleaned.indexOf('{');
-      var last  = cleaned.lastIndexOf('}');
-      var raw   = cleaned;
-      if (first === -1 || last <= first) throw new Error('No JSON found. Please try again.');
-      var str = raw.substring(first, last + 1);
+You understand the specific pain these practitioners face:
+- Their referral pipeline from corporate career is thinning in year 3-5 of independent practice
+- They post on LinkedIn but get engagement from peers and other coaches, not from the CEOs and CHROs who hire them
+- Their corporate network is full of colleagues and HR professionals, not coaching buyers
+- They want inbound discovery calls from right-fit buyers, not more connections
+- They do not want to cold pitch — it feels wrong for the kind of work they do
 
-      // Attempt 1: direct parse
-      try {
-        var r1 = JSON.parse(str);
-        if (r1 && r1.posts !== undefined) return r1;
-      } catch(e1) { console.log('Parse attempt 1:', e1.message); }
+STRICT VOICE RULES for all posts:
+- Zero em dashes anywhere. Use commas, colons, or line breaks instead.
+- Zero exclamation marks anywhere.
+- Zero emojis anywhere in post body.
+- Short paragraphs: 1-3 sentences maximum. Never a wall of text.
+- Declarative closers only. No closing questions.
+- Never open a post with "I".
+- Problems are diagnosed in prose. Solutions use short arrow bullets (→) only.
+- Short fragments (one line) mixed with medium sentences (2-3 lines). Never three long sentences in a row.
+- Mirror the practitioner's vocabulary, sentence rhythm, and conceptual framing from their answers.
+- Posts should read like a sharp, thoughtful practitioner's thinking — not an AI content tool.
 
-      // Attempt 2: fix literal newlines inside strings
-      try {
-        var out = '', inStr = false, esc2 = false;
-        for (var i = 0; i < str.length; i++) {
-          var ch = str[i];
-          if (esc2)             { out += ch; esc2 = false; continue; }
-          if (ch === '\\')      { out += ch; esc2 = true;  continue; }
-          if (ch === '"')       { inStr = !inStr; out += ch; continue; }
-          if (inStr && ch === '\n') { out += '\\n'; continue; }
-          if (inStr && ch === '\r') { continue; }
-          if (inStr && ch === '\t') { out += '\\t'; continue; }
-          out += ch;
-        }
-        var r2 = JSON.parse(out);
-        if (r2 && r2.posts !== undefined) return r2;
-      } catch(e2) { console.log('Parse attempt 2:', e2.message); }
+POST TYPES to produce:
+1. Teaching post: Diagnoses a structural problem the ICP has. Names the gap. Shows the distinction between the surface symptom and the real problem. Ends with a declarative statement or a soft CTA ("Comment POSTS — free tool, 4 questions, 3 posts in your voice, 10 minutes").
+2. Opinion post: A contrarian take based on their sales objection answer. Takes a clear position. No hedging. Ends declaratively. No CTA.
+3. Story post: First-person but does NOT open with "I". A client situation, insight moment, or observation from their practice. Short. Specific. Ends with the lesson as a declarative statement.
 
-      // Attempt 3: regex extraction
-      try {
-        var vf = (str.match(/"voice_fingerprint"\s*:\s*"([^"]*)"/) || [])[1] || '';
-        var posts = [];
-        ['Teaching', 'Opinion', 'Story'].forEach(function(type) {
-          var a = Math.max(
-            str.indexOf('"type":"' + type + '"'),
-            str.indexOf('"type": "' + type + '"')
-          );
-          if (a < 0) return;
-          var b = str.indexOf('"type"', a + 10);
-          var block = b > 0 ? str.substring(a, b) : str.substring(a);
-          var h = (block.match(/"hook"\s*:\s*"([^"]*)"/) || [])[1];
-          var p = (block.match(/"full_post"\s*:\s*"([^"]*)"/) || [])[1];
-          if (h && p) posts.push({ type: type, hook: h, full_post: p.replace(/\\n/g, '\n') });
-        });
-        if (posts.length) return { voice_fingerprint: vf, posts: posts };
-      } catch(e3) { console.log('Parse attempt 3:', e3.message); }
+Each post should be 180-300 words. No hashtags inside the body — if any, at the very end only (max 3).
 
-      throw new Error('Could not parse response. Please try again.');
-    }
+OUTPUT FORMAT: Return ONLY valid JSON, no markdown fences, no preamble:
+{
+  "voiceFingerprint": "2-3 sentences describing their specific voice pattern, sentence rhythm, and what makes their communication style distinctive",
+  "pipelineDiagnosis": [
+    {"gap": "Short gap title", "insight": "One specific, diagnostic sentence about their exact situation based on their niche and answers"},
+    {"gap": "Short gap title", "insight": "One specific, diagnostic sentence"},
+    {"gap": "Short gap title", "insight": "One specific, diagnostic sentence"}
+  ],
+  "posts": [
+    {"type": "Teaching", "content": "Full post text ready to paste into LinkedIn"},
+    {"type": "Opinion", "content": "Full post text ready to paste into LinkedIn"},
+    {"type": "Story", "content": "Full post text ready to paste into LinkedIn"}
+  ]
+}`;
+}
 
-    // ─── System prompt ────────────────────────────────────────────────────────
-    function buildSystemPrompt() {
-      var nl = '\n';
-      var sp = [
-        'CRITICAL OUTPUT RULE: Return a single raw JSON object only. Start with { and end with }. No markdown. No backticks. No code fences. No text before or after.',
-        '',
-        'You write LinkedIn posts for a fractional executive. These posts must generate inbound discovery calls from their ideal clients. Not likes. Not impressions. Pipeline conversations that become clients.',
-        '',
-        '===========================================',
-        'CONTEXT',
-        '===========================================',
-        '',
-        'Niche: "' + D.niche + '"',
-        'Voice anchor (best sentence they have written, may be empty): "' + D.q4 + '"',
-        '',
-        'From the niche, extract before writing anything:',
-        'WRITER: The fractional executive publishing these posts',
-        'DOMAIN: Their specific area of expertise (revenue operations / GTM strategy / demand generation / sales process / positioning / pricing / etc.)',
-        'READER: Their ideal clients — the buyers who read these posts and may hire them',
-        'OUTCOME: The transformation they deliver',
-        '',
-        'CRITICAL: Do NOT write about LinkedIn strategy, content creation, or personal branding unless the niche explicitly covers these. Write about the DOMAIN. Every post speaks FROM the WRITER\'s expertise TO the READER\'s business problems.',
-        '',
-        '===========================================',
-        'STEP 1 — VOICE FINGERPRINT',
-        '===========================================',
-        '',
-        'Read ALL four answers including the voice anchor. Extract:',
-        '1. Sentence length (short: under 10 words dominant / medium: 10-20 / long: 20+)',
-        '2. Vocabulary (technical domain-specific / conversational / mixed)',
-        '3. Framing (problem-first: diagnoses root cause before prescribing / outcome-first: leads with result)',
-        '4. Perspective (first-person "I" / impersonal "most companies / most founders / most revenue teams")',
-        '5. VERBATIM phrases from their answers — these go directly into the posts word-for-word',
-        '',
-        'If a voice anchor sentence was provided, it is the highest-priority signal. Match its rhythm, vocabulary, and framing exactly.',
-        '',
-        'Write ONE voice fingerprint sentence before writing any post.',
-        '',
-        '===========================================',
-        'STEP 2 — POST ARCHITECTURE',
-        '===========================================',
-        '',
-        'Every effective LinkedIn post has exactly four parts. Apply this to all three posts:',
-        '',
-        'PART 1 — HOOK (lines 1-3, under 210 characters)',
-        'Stops the scroll. Creates enough tension or recognition to earn the "see more" click.',
-        'Line 1 does all the work. If someone reads only line 1, there must be enough to pull them to line 2.',
-        '',
-        'PART 2 — BODY',
-        'Delivers the value. Teaches, tells, proves, or reframes something. This is where trust is built.',
-        'Diagnose in prose — short paragraphs (1-3 sentences), blank line between each.',
-        'Problems diagnosed in prose ONLY. Never bullet points for diagnosis.',
-        '',
-        'PART 3 — PAYOFF',
-        'Lands the insight. 1-2 declarative sentences. Hard landing. No hedging.',
-        '',
-        'PART 4 — CTA',
-        'Teaching posts: Resource Handraiser — "Comment [KEYWORD] and I\'ll send you [specific deliverable]. Takes [X minutes]. [Dream outcome]."',
-        'Opinion posts: NO CTA — end on the payoff. Let it land.',
-        'Story posts: ONE specific diagnostic question OR soft resource handraiser. Not both.',
-        '',
-        '===========================================',
-        'STEP 3 — HOOK PATTERNS',
-        '===========================================',
-        '',
-        'Pick the strongest pattern for each post:',
-        '',
-        'PATTERN 1 — PAIN MIRROR: Open with a situation the READER is currently living. They read it and think "that\'s me." Best for: Teaching posts.',
-        'PATTERN 2 — PATTERN INTERRUPT: A statement that contradicts a common belief in the DOMAIN. Best for: Opinion posts.',
-        'PATTERN 3 — SPECIFIC NUMBER: Lead with a concrete metric. [Number] + [specific context] + [implication]. Best for: Proof posts.',
-        'PATTERN 4 — OPEN LOOP: Tease a result. Withhold the how. Best for: Story posts.',
-        'PATTERN 5 — DIRECT ADDRESS: Call out the READER by role, stage, or situation. Best for: Teaching and handraiser posts.',
-        'PATTERN 6 — STOP DOING THIS: Identify a costly mistake. [Common behaviour] + [what it is costing them]. Best for: Teaching posts.',
-        'PATTERN 7 — STORY ENTRY: Drop into a specific moment. No preamble. Best for: Story posts.',
-        '',
-        'Hook checklist:',
-        '- Specific. Names a role, a number, a situation. Never "many people" or "businesses."',
-        '- Under 210 characters.',
-        '- No emojis.',
-        '- Never opens with "I".',
-        '- Never a question. Declaratives outperform questions every time.',
-        '',
-        '===========================================',
-        'STEP 4 — THREE POSTS',
-        '===========================================',
-        '',
-        'STRUCTURAL PATTERNS — apply to every post:',
-        '',
-        'A — FALSE LABEL TO REAL LABEL: "Most [READER] don\'t have a [surface problem]. They have a [root cause problem]." Use in at least one post.',
-        'B — THREE-PART DISMISSAL: "Not [wrong 1]. Not [wrong 2]. Not [wrong 3]. It is a [real answer]."',
-        'C — DISAPPEARING INSIGHT: "The [specific thing] that just [specific result] disappears the moment [specific trigger]."',
-        'D — PARALLEL CONTRAST LIST: Two lists showing wrong diagnosis vs right diagnosis.',
-        'E — SHORT DECLARATIVE CLOSER: 1-2 hard sentences. No questions. No hedging.',
-        '',
-        'RHYTHM RULES:',
-        '- Mix short fragments (1 line) with medium sentences (2-3 lines)',
-        '- Never three long sentences in a row',
-        '- Paragraph break after every 1-3 sentences — always',
-        '',
-        'POST 1: TEACHING POST',
-        'Source: Answer 1 (most useful thing told to a client)',
-        'Hook: PAIN MIRROR or DIRECT ADDRESS. Under 210 chars.',
-        'Body: False Label to Real Label opener. 3-4 short paragraphs. Use verbatim phrases from Answer 1. Prose only.',
-        'Payoff: 1-2 declarative sentences.',
-        'CTA: "Comment [DOMAIN-SPECIFIC KEYWORD] and I\'ll send you [specific named deliverable]. Takes [X minutes]. [Dream outcome]."',
-        '"Comment" beats "DM me" — comments boost reach. Keyword must name what they receive.',
-        '',
-        'POST 2: OPINION POST',
-        'Source: Answer 2 (sales objection and reframe)',
-        'The objection the prospect raised = the false belief most READERS hold.',
-        'The user\'s reframe = the argument of this post.',
-        'Hook: PATTERN INTERRUPT. Under 140 characters. State the contrarian position directly.',
-        'Body: Three-Part Dismissal. 2-3 short paragraphs. Ground every claim in Answer 2. Use their specific words.',
-        'Payoff: Hard declarative landing.',
-        'NO CTA. End on the payoff.',
-        '',
-        'POST 3: STORY POST',
-        'Source: Answer 3 (what clients misunderstand before a call)',
-        'Hook: OPEN LOOP or STORY ENTRY. Under 180 characters.',
-        'Body para 1: The assumption most READERS arrive with.',
-        'Body para 2: Why that assumption costs them. Use Disappearing Insight pattern.',
-        'Body para 3: What shifts when they understand the truth. Use Answer 3 directly.',
-        'Payoff: Transferable declarative lesson. Domain-specific.',
-        'CTA: ONE sharp diagnostic question that makes the READER self-identify, OR soft resource handraiser.',
-        '',
-        '===========================================',
-        'STEP 5 — QUALITY AUDIT (run silently, fix before outputting)',
-        '===========================================',
-        '',
-        'DOMAIN CHECK:',
-        '1. Post is about DOMAIN, not LinkedIn strategy or personal branding (unless niche covers those)? If not — REWRITE.',
-        '2. Speaks to the specific READER by role and situation? Generic = rewrite.',
-        '3. Uses at least one verbatim phrase from the answers?',
-        '4. Could any consultant in this space have written this? If yes — REWRITE.',
-        '',
-        'HOOK AUDIT:',
-        '5. Hook under 210 chars? 6. First line earns line 2? 7. Never opens with "I"? 8. Not a question?',
-        '',
-        'COPY AUDIT:',
-        '9. No em dashes. 10. No exclamation marks. 11. No emojis.',
-        '12. No banned phrases: "Here\'s the thing" / "Let me share" / "In today\'s landscape" / "game-changer" / "powerful" / "journey" / "It\'s no secret" / "At the end of the day" / "Excited to" / "Hot take:" / "Unpopular opinion:"',
-        '13. Teaching and Opinion posts end with declarative, not a question.',
-        '',
-        'STRUCTURE AUDIT:',
-        '14. False Label to Real Label in at least one post? 15. Verbatim phrase in each post?',
-        '16. Short paragraphs throughout? 17. Problems in prose, not bullets? 18. Solutions with arrows only?',
-        '',
-        '===========================================',
-        'STEP 6 — OGILVY VALIDATION',
-        '===========================================',
-        '',
-        'CHECK 1: COMPETITOR SWAP TEST. Could any other fractional executive in this domain have written this post? If yes — rewrite using specific experience, vocabulary, and reframe from their answers.',
-        '',
-        'CHECK 2: SPECIFICITY AUDIT. Replace vague adjectives with specific facts, roles, timeframes, or situations the answers support.',
-        '',
-        'CHECK 3: FIRST PARAGRAPH DELIVERY. Does the first body paragraph immediately advance the hook\'s tension? If it is preamble — cut it.',
-        '',
-        '===========================================',
-        'JSON OUTPUT RULES',
-        '===========================================',
-        '- Return ONLY the raw JSON object. No text before or after.',
-        '- Use \\n for paragraph breaks in full_post — never literal newlines.',
-        '- \\n\\n between paragraphs.',
-        '- No unescaped double quotes inside strings.',
-        '- 200-270 words per full_post.',
-        '',
-        '{"voice_fingerprint":"","posts":[{"type":"Teaching","hook":"","full_post":""},{"type":"Opinion","hook":"","full_post":""},{"type":"Story","hook":"","full_post":""}]}'
-      ];
-      return sp.join(nl);
-    }
+function buildUserPrompt() {
+  const nameStr = state.name ? `Name: ${state.name}` : '';
+  const icpStr = state.icp ? `Their ideal clients: ${state.icp}` : '';
+  const q4Str = state.q4
+    ? `Voice sample (their best sentence): "${state.q4}"`
+    : `Voice sample: None provided — infer from their answers above.`;
 
-    // ─── API call with retry ──────────────────────────────────────────────────
-    async function callWithRetry(payload) {
-      var delays     = [2000, 5000, 10000];
-      var retryCodes = [429, 500, 502, 529];
-      var lastErr    = null;
+  return `${nameStr}
+Practitioner type: ${state.niche}
+${icpStr}
 
-      for (var attempt = 0; attempt < 3; attempt++) {
-        try {
-          var isArtifact = window.location.hostname.indexOf('claude.ai') !== -1 ||
-                           window.location.hostname === 'localhost' ||
-                           window.location.hostname === '';
-          var endpoint = isArtifact
-            ? 'https://api.anthropic.com/v1/messages'
-            : '/.netlify/functions/api';
+Answer 1 — Most useful insight told to a client this month:
+"${state.q1}"
 
-          var resp = await fetch(endpoint, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload)
-          });
+Answer 2 — Sales objection and what moved the prospect forward:
+"${state.q2}"
 
-          if (retryCodes.indexOf(resp.status) !== -1 && attempt < 2) {
-            lastErr = new Error('HTTP ' + resp.status);
-            setRetryMsg(attempt + 2);
-            await new Promise(function(r) { setTimeout(r, delays[attempt]); });
-            continue;
-          }
+Answer 3 — What they wish clients understood before calling:
+"${state.q3}"
 
-          var data = await resp.json();
-          if (data.error) {
-            var msg = (data.error && data.error.message) ? data.error.message : JSON.stringify(data.error);
-            throw new Error(msg);
-          }
-          return data;
+${q4Str}
 
-        } catch(err) {
-          lastErr = err;
-          if (attempt < 2) {
-            setRetryMsg(attempt + 2);
-            await new Promise(function(r) { setTimeout(r, delays[attempt]); });
-          }
-        }
-      }
+Produce the pipeline diagnosis and three LinkedIn posts. Match their voice exactly. Each post must be complete and publish-ready.`;
+}
 
-      throw lastErr || new Error('Request failed after 3 attempts.');
-    }
+// ── RENDER RESULTS ──
+function renderResults(result) {
+  const name = state.name ? state.name : 'you';
 
-    // ─── Main generate ────────────────────────────────────────────────────────
-    async function generate() {
-      go(2);
-      startBuildingPhases();
+  document.getElementById('results-title').textContent =
+    state.name ? `${state.name}, your posts are ready.` : 'Your posts are ready.';
 
-      var userContent = 'Answer 1 (most useful thing told to a client this month):\n' + D.q1
-        + '\n\nAnswer 2 (sales objection and reframe):\n' + D.q2
-        + '\n\nAnswer 3 (what clients misunderstand before a call):\n' + D.q3
-        + (D.q4 ? '\n\nAnswer 4 (voice anchor):\n' + D.q4 : '');
+  // Voice fingerprint
+  document.getElementById('fingerprint-text').textContent = result.voiceFingerprint || '';
 
-      var payload = {
-        model:      'claude-sonnet-4-20250514',
-        max_tokens: 3500,
-        system:     buildSystemPrompt(),
-        messages:   [{ role: 'user', content: userContent }]
-      };
+  // Diagnosis
+  const diagGrid = document.getElementById('diagnosis-grid');
+  diagGrid.innerHTML = '';
+  const diagIcons = ['⚠', '◎', '→'];
+  (result.pipelineDiagnosis || []).forEach((d, i) => {
+    diagGrid.innerHTML += `
+      <div class="diagnosis-item">
+        <div class="diag-icon">${diagIcons[i] || '!'}</div>
+        <div class="diag-content">
+          <strong>${escHtml(d.gap)}</strong>
+          <p>${escHtml(d.insight)}</p>
+        </div>
+      </div>`;
+  });
 
-      try {
-        var data = await callWithRetry(payload);
-        stopBuildingPhases();
+  // Posts
+  const postsContainer = document.getElementById('posts-container');
+  postsContainer.innerHTML = '';
+  (result.posts || []).forEach((post, i) => {
+    const id = `post-${i}`;
+    postsContainer.innerHTML += `
+      <div class="post-card">
+        <div class="post-header">
+          <span class="post-type-tag">${escHtml(post.type)}</span>
+          <button class="btn btn-copy" id="copy-${id}" onclick="copyPost('${id}', ${i})">Copy post</button>
+        </div>
+        <div class="post-body" id="${id}">${escHtml(post.content)}</div>
+      </div>`;
+  });
+}
 
-        var raw     = '';
-        var content = data.content || [];
-        for (var i = 0; i < content.length; i++) {
-          if (content[i].type === 'text') { raw = content[i].text; break; }
-        }
+// ── COPY ──
+function copyPost(id, index) {
+  const content = state.result?.posts?.[index]?.content || '';
+  navigator.clipboard.writeText(content).then(() => {
+    const btn = document.getElementById(`copy-${id}`);
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy post'; btn.classList.remove('copied'); }, 2200);
+    showToast('Copied to clipboard');
+  });
+}
 
-        var parsed = safeParseJSON(raw);
-        renderOutput(parsed);
-        go(3);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
 
-      } catch(ex) {
-        stopBuildingPhases();
-        document.getElementById('err-msg').textContent = ex.message || 'Unknown error.';
-        go(4);
-      }
-    }
-
-    // ─── Render output ────────────────────────────────────────────────────────
-    function renderOutput(parsed) {
-      postTexts = [];
-
-      var TYPE_CFG = {
-        'Teaching': {
-          badge:       'badge-violet',
-          purpose:     'purpose-green',
-          purposeText: 'Generates inbound DMs from prospects researching their problem'
-        },
-        'Opinion': {
-          badge:       'badge-amber',
-          purpose:     'purpose-amber',
-          purposeText: 'Filters wrong-fit clients. Attracts high-conviction buyers.'
-        },
-        'Story': {
-          badge:       'badge-green',
-          purpose:     'purpose-violet',
-          purposeText: 'Makes your ideal client self-identify in the comments'
-        }
-      };
-
-      var html = '';
-
-      // Block 1: Diagnosis
-      var diagItems  = buildDiagnosis(D.niche);
-      var nicheShort = D.niche.length > 58 ? D.niche.substring(0, 58) + '...' : D.niche;
-
-      html += '<div class="diag-card">';
-      html += '<div class="diag-header">';
-      html += '<span class="section-label">YOUR LINKEDIN PIPELINE DIAGNOSIS</span>';
-      html += '<span class="niche-pill">' + esc(nicheShort) + '</span>';
-      html += '</div>';
-
-      for (var d = 0; d < diagItems.length; d++) {
-        var item = diagItems[d];
-        html += '<div class="diag-item">';
-        html += '<div class="diag-num">' + esc(item.num) + '</div>';
-        html += '<div class="diag-content">';
-        html += '<div class="diag-title">' + esc(item.title) + '</div>';
-        html += '<div class="diag-body">'  + esc(item.body)  + '</div>';
-        html += '<div class="diag-impact"><span class="impact-dot">&#183;</span> ' + esc(item.impact) + '</div>';
-        html += '</div></div>';
-      }
-
-      html += '<div class="diag-footer">The three posts below are built to address gaps 2 and 3 directly.</div>';
-      html += '</div>';
-
-      // Block 2: Voice fingerprint (if returned)
-      if (parsed.voice_fingerprint) {
-        html += '<div class="fingerprint-badge">';
-        html += '<span class="section-label">VOICE FINGERPRINT DETECTED</span>';
-        html += '<div class="fingerprint-text" id="vf-text"></div>';
-        html += '</div>';
-      }
-
-      var firstName = D.name ? D.name.split(' ')[0] : '';
-      html += '<div class="output-intro">';
-      html += '<p>' + (firstName ? firstName + ', here are your three posts.' : 'Here are your three posts.') + '</p>';
-      html += '<p>Each built for a different job in your pipeline.</p>';
-      html += '<p>Publish all three this week.</p>';
-      html += '</div>';
-
-      // Block 4: Post cards
-      var posts = parsed.posts || [];
-      for (var j = 0; j < posts.length; j++) {
-        var post = posts[j];
-        var cfg  = TYPE_CFG[post.type] || TYPE_CFG['Teaching'];
-
-        var hookText = post.hook || '';
-        var bodyText = post.full_post || '';
-        var fullText = hookText + '\n\n' + bodyText;
-        postTexts.push(fullText);
-
-        var rawWords = (hookText + ' ' + bodyText).trim().split(/\s+/);
-        var wordCount = 0;
-        for (var w = 0; w < rawWords.length; w++) {
-          if (rawWords[w].length > 0) wordCount++;
-        }
-
-        html += '<div class="post-card card-in" style="animation-delay:' + (j * 0.45) + 's">';
-        html += '<div class="post-header"><span class="type-badge ' + cfg.badge + '">' + esc(post.type.toUpperCase()) + '</span></div>';
-        html += '<div class="hook-label">HOOK — VISIBLE BEFORE "SEE MORE"</div>';
-        html += '<div class="hook-text" id="pt-hook-' + j + '"></div>';
-        html += '<div class="hook-divider"></div>';
-        html += '<div class="post-body" id="pt-body-' + j + '"></div>';
-        html += '<div class="purpose-badge ' + cfg.purpose + '">' + esc(cfg.purposeText) + '</div>';
-        html += '<div class="post-footer">';
-        html += '<span class="word-count">' + wordCount + ' words</span>';
-        html += '<button class="btn-ghost copy-btn" id="copy-btn-' + j + '" onclick="copyPostDirect(' + j + ', this)">Copy post</button>';
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // Block 5: Value stack
-      html += '<div class="value-stack">';
-      html += '<span class="section-label">WHAT YOU JUST RECEIVED, AT NO COST</span>';
-      var vsItems = [
-        'A 3-point pipeline diagnosis calibrated to your specific niche',
-        'A voice fingerprint: your sentence patterns, vocabulary, and framing, encoded',
-        'A teaching post that generates inbound DMs from prospects researching your problem',
-        'An opinion post that filters wrong-fit clients and attracts high-conviction buyers',
-        'A story post that makes your ideal client self-identify in the comments',
-        'A purpose mechanic for each post: what to do when engagement starts'
-      ];
-      for (var v = 0; v < vsItems.length; v++) {
-        html += '<div class="value-item">' + esc(vsItems[v]) + '</div>';
-      }
-      html += '<div class="value-sep">12 seconds. From four answers to three ready posts.</div>';
-      html += '<div class="value-full">The full LinkedIn Authority Infrastructure adds: carousels, DM scripts, comment reply templates for every engagement type, a pipeline activation guide per post, a posting calendar, and a complete profile readiness score, built once from a single 90-minute extraction session. You own it permanently. No retainer. No ongoing dependency on anyone.</div>';
-      html += '</div>';
-
-      // Block 6: CTA
-      html += '<div class="cta-block">';
-      html += '<div class="cta-eyebrow">READY TO FIX THIS PERMANENTLY</div>';
-      html += '<h2 class="cta-heading">See exactly what your LinkedIn pipeline is missing. In 30 minutes.</h2>';
-      html += '<p class="cta-body">One conversation. I review your profile, your content, your ICP, and your positioning. You leave with a clear diagnosis and an honest answer: whether this system makes sense for your situation. No pitch deck. If it is not a fit, I will tell you that directly.</p>';
-      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--ok);flex-shrink:0;"></div><span style="font-size:12px;color:rgba(255,255,255,0.55);font-family:Space Mono,monospace;">Currently taking 2 new clients this month</span></div>';
-      html += '<a class="btn-amber" href="https://calendly.com/saurabh_zentro/30-min" target="_blank" rel="noopener noreferrer">Book My Pipeline Diagnosis</a>';
-      html += '<p class="cta-leave">Not ready yet? Save these posts. Publish all three this week. Come back when you want the full system.</p>';
-      html += '</div>';
-
-      html += '<div style="text-align:center;padding-top:20px;padding-bottom:8px;">';
-      html += '<button onclick="resetTool()" style="background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;transition:color 0.18s;" onmouseover="this.style.color=\'rgba(255,255,255,0.60)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.35)\'">Start over with different answers</button>';
-      html += '</div>';
-
-      document.getElementById('s3-content').innerHTML = html;
-
-      // Populate text via textContent (preserves newlines with white-space:pre-line)
-      for (var k = 0; k < posts.length; k++) {
-        var hEl = document.getElementById('pt-hook-' + k);
-        var bEl = document.getElementById('pt-body-' + k);
-        if (hEl) hEl.textContent = posts[k].hook || '';
-        if (bEl) bEl.textContent = posts[k].full_post || '';
-      }
-
-      // Fingerprint text
-      if (parsed.voice_fingerprint) {
-        var vfEl = document.getElementById('vf-text');
-        if (vfEl) vfEl.textContent = parsed.voice_fingerprint;
-      }
-    }
-
-    // ─── Single-click copy ───────────────────────────────────────────────────
-    var copyToastTimer = null;
-
-    function copyPostDirect(idx, btn) {
-      var text = postTexts[idx] || '';
-      var toast = document.getElementById('copy-toast');
-
-      function showToast(msg) {
-        toast.textContent = msg || 'Post copied to clipboard';
-        toast.classList.add('show');
-        if (copyToastTimer) clearTimeout(copyToastTimer);
-        copyToastTimer = setTimeout(function() {
-          toast.classList.remove('show');
-        }, 2200);
-      }
-
-      function markBtn() {
-        if (!btn) return;
-        btn.textContent = 'Copied';
-        btn.style.color = 'var(--ok)';
-        btn.style.borderColor = 'var(--ok)';
-        setTimeout(function() {
-          btn.textContent = 'Copy post';
-          btn.style.color = '';
-          btn.style.borderColor = '';
-        }, 2200);
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function() {
-          showToast();
-          markBtn();
-        }).catch(function() {
-          scratchCopy(text, showToast, markBtn);
-        });
-      } else {
-        scratchCopy(text, showToast, markBtn);
-      }
-    }
-
-    function scratchCopy(text, onSuccess, onMark) {
-      var ta = document.getElementById('copy-scratch');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.top = '0';
-      ta.style.opacity = '0.01';
-      ta.focus();
-      ta.select();
-      try {
-        var ok = document.execCommand('copy');
-        ta.style.top = '-9999px';
-        ta.style.opacity = '0';
-        if (ok) { onSuccess(); onMark(); }
-        else { onSuccess('Text selected — press Ctrl/Cmd+C to copy'); }
-      } catch(e) {
-        ta.style.top = '-9999px';
-        ta.style.opacity = '0';
-        onSuccess('Select all text and press Ctrl/Cmd+C');
-      }
-    }
-  </script>
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
 </body>
 </html>
